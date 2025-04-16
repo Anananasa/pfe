@@ -184,7 +184,7 @@ export class AddIncidentComponent implements OnInit {
         incidentTeams: incidentTeams,
         isSystem: false,
         crudFrom: 1,
-        crud: 1,
+        crud: 1, // CHANGES DEPENDING ON THE METHOD 1: CREATES, 2: UPDATES, 3: DELETES
         legacyId: '',
         typeLegacy: 0,
         isEnabled: true,
