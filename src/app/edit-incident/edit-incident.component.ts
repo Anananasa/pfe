@@ -382,7 +382,8 @@ export class EditIncidentComponent implements OnInit {
         cause: this.cleanHtmlContent(this.incidentForm.value.causes),
         consequence: this.cleanHtmlContent(this.incidentForm.value.consequences),
         state: this.incidentForm.value.state,
-        incidentTeams
+        crud: 2, // CHANGES DEPENDING ON THE METHOD 1: CREATES, 2: UPDATES, 3: DELETES
+        incidentTeams: incidentTeams
       };
 
       this.apiService.updateIncident(this.incidentId, formData).subscribe({
