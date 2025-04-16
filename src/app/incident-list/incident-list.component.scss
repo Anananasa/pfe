@@ -1,0 +1,291 @@
+/* Page background */
+ion-content {
+  --background: #f4f4f4; /* Light gray background for overall contrast */
+}
+
+/* Outer card container for each incident */
+.incident-item {
+  display: flex;
+  flex-direction: column; /* Stack elements top to bottom */
+  justify-content: center;
+  align-items: stretch; /* Leave padding on both sides */
+}
+
+.list {
+  margin: 12px auto; /* Center the card with vertical spacing */
+  padding: 15px;
+}
+/* Internal row container: vertical status bar + main content */
+.incident-container {
+  margin: 12px auto; /* Center the card with vertical spacing */
+  background: #fff; /* White background inside the card */
+  display: flex;
+  flex-direction: row; /* Horizontal layout */
+  width: 100%;
+  padding: 0;
+  border: solid 1px black;
+  border-radius: 8px;
+  @media (max-width:600px) {
+    flex-direction: column;
+  }
+}
+
+/* Vertical status bar on the left side of the card */
+.incident-statut {
+  writing-mode: vertical-rl; /* Make text vertical (top to bottom) */
+  transform: rotate(180deg); /* Flip it to read from top to bottom */
+  background-color: #28a745; /* Default green (e.g., for 'Validé') */
+  color: white; /* White text color */
+  padding: 0; /* Vertical padding, no horizontal */
+  font-weight: bold;
+  font-size: 16px;
+  text-align: center;
+  border-radius: 0 8px 8px 0; /* Round only right-side corners */
+  min-width: 50px; /* Prevent it from shrinking too small */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  @media (max-width:600px) {
+    writing-mode: horizontal-tb; 
+    transform: rotate(0deg);
+    border-radius: 8px 8px 0 0;
+    padding-block: 15px;
+  }
+}
+
+/* Right-hand side content (text info) */
+.incident-content {
+  flex: 1; /* Take all remaining space */
+  display: flex;
+  flex-direction: column; /* Stack text vertically */
+  gap: 6px; /* Space between text lines */
+  padding: 14px; /* Inner padding from the card edges */
+}
+
+/* Incident code or identifier (main title) */
+.incident-title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Designation or description */
+.incident-subtitle {
+  font-size: 16px;
+  color: gray;
+}
+
+/* Date and creator information */
+.incident-date,
+.incident-creator {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Buttons section */
+.incident-actions {
+  display: flex;
+  justify-content: flex-end; /* Align buttons to the right */
+  margin-top: auto;   /* bts louta  nzidha ken max toul fih mochkol ************************    */
+  gap: 8px; /* Space between buttons */
+  padding: 10px;/* Padding around the buttons */
+}
+
+/* Individual button style */
+.btd {
+  border-radius: 12px; /* Rounded buttons */
+  width: 40px; /* Fixed width */
+  border-radius: 4px;         /* Slightly smaller rounded corners */
+  width: 32px;                /* Smaller button width */
+  height: 32px;               /* Set height for square buttons */
+  font-size: 14px;            /* Smaller emoji/icon or text */
+  padding: 0;                 /* Remove internal padding */
+  background-color: rgb(255, 255, 255);
+}
+/* Default status style (fallback) */
+.status-default {
+  background-color: #007bff; /* gray */
+}
+
+/* Green for 'Validé' */
+.status-valide {
+  background-color: #28a745; /* green */
+}
+
+/* Orange for 'En cours' */
+.status-en-cours {
+  background-color: #ffc107; /* yellow/orange */
+  color: black;
+}
+
+/* Red for 'Rejeté' */
+.status-rejete {
+  background-color: red; /* red */
+}
+.incident-details {
+  background-color: #f9f9f9;
+  padding: 16px;
+  border-top: 1px solid #ccc;
+  border-radius: 0 0 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.incident-detail {
+  display: flex;
+  align-items: flex-start;
+}
+
+.incident-detail strong {
+  width: 160px; /* align all labels */
+  flex-shrink: 0;
+  font-weight: bold;
+  color: #333;
+  text-align: left;
+}
+
+.incident-detail span {
+  flex: 1;
+  color: #666;
+  font-style: italic;
+  word-break: break-word;
+}
+.filter-toggle {
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  z-index: 50;
+}
+
+.floating-filter {
+  position: absolute;
+  top: 60px;
+  right: 16px;
+  width: 60%;            /* Or a smaller value if desired */
+  max-width: 340px;
+  max-height: 80vh;       /* Limit height to viewport height */
+  overflow-y: auto;       /* Enable vertical scroll */
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  padding: 12px;
+  z-index: 100;
+}
+
+
+.close-icon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 20px;
+  color: black;
+  z-index: 101;
+}
+
+.status-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+/* Filter Button Colors */
+.filter-button-valide {
+  --background: #28a745; /* green */
+  --color: white;
+}
+
+.filter-button-en-cours {
+  --background: #ffc107; /* yellow */
+  --color: black;
+}
+
+.filter-button-rejete {
+  --background: red; /* red */
+  --color: white;
+}
+
+.filter-button-programme {
+  --background: #007bff; /* blue */
+  --color: white;
+}
+
+.filter-toggle ion-button {
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  --border-radius: 4px;
+  --background: #fff;
+  --color: #007bff;
+
+  font-size: 16px;
+  font-weight: bold;
+  height: 44px;
+  min-width: 50px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.exit-btn {
+  z-index: 101;
+  --padding-start: 6px;
+  --padding-end: 6px;
+  --border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  --color: #333;
+  --background: transparent;
+  font-size: 20px;
+}
+
+
+ion-icon {
+  font-size: 25px; /* adjust this value as needed */
+}
+.floating-chatbot {
+  position: fixed;
+  bottom: 100px;
+  left: 20px;
+  width: 90%;
+  max-width: 400px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  z-index: 999;
+
+  .exit-btn {
+    float: right;
+  }
+
+  .chat-messages {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+  }
+
+  .user .bubble {
+    background-color: #d1e7dd;
+    padding: 8px;
+    border-radius: 10px;
+    margin: 5px 0;
+    align-self: flex-end;
+  }
+
+  .assistant .bubble {
+    background-color: #f8d7da;
+    padding: 8px;
+    border-radius: 10px;
+    margin: 5px 0;
+    align-self: flex-start;
+  }
+
+  .chat-input {
+    margin-bottom: 10px;
+  }
+}

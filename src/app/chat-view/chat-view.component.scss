@@ -1,0 +1,48 @@
+ion-content {
+  --background: #f5f5f5;
+}
+
+.message-content {
+  background: white;
+  border-radius: 8px;
+  padding: 8px;
+  margin: 4px 0;
+  max-width: 80%;
+}
+
+.user-message {
+  --background: transparent;
+  
+  .message-content {
+    background: var(--ion-color-primary);
+    color: white;
+    margin-left: auto;
+  }
+
+  .timestamp {
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+.timestamp {
+  display: block;
+  font-size: 0.8em;
+  color: var(--ion-color-medium);
+  margin-top: 4px;
+}
+
+ion-footer {
+  ion-toolbar {
+    --padding-top: 0;
+    --padding-bottom: 0;
+  }
+
+  ion-item {
+    --padding-start: 8px;
+    --padding-end: 8px;
+  }
+
+  ion-input {
+    --padding-start: 8px;
+  }
+} 

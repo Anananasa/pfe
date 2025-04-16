@@ -1,0 +1,17 @@
+ion-item {
+  --background: #1e1e1e;
+  --color: #ffffff;
+  margin-bottom: 8px;
+}
+
+ion-label {
+  color: #cccccc;
+}
+
+ion-input, ion-textarea {
+  --color: #ffffff;
+}
+
+ion-button {
+  margin-top: 16px;
+} 

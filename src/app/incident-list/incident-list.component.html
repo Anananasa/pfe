@@ -1,0 +1,166 @@
+<app-nav-header title="Liste des incidents" backUrl="/home"></app-nav-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="loadIncidents()">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ion-searchbar
+    [(ngModel)]="searchTerm"
+    (ionInput)="filterIncidents()"
+    placeholder="Rechercher un incident..."
+    animated="true"
+    class="ion-padding"
+  ></ion-searchbar>
+
+  <div *ngIf="isLoading" class="ion-text-center ion-padding">
+    <ion-spinner></ion-spinner>
+    <p>Chargement des incidents...</p>
+  </div>
+  <!-- Filter Button -->
+<div class="filter-toggle">
+  <ion-button fill="clear" size="small" (click)="toggleFilter()">
+    <ion-icon name="filter"></ion-icon>
+  </ion-button>
+</div>
+<!-- Floating Chatbot Button -->
+<ion-fab vertical="bottom" horizontal="start" slot="fixed">
+  <ion-fab-button (click)="toggleChatbot()">
+    <ion-icon name="logo-ionitron"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
+<!-- Floating Chatbot Panel -->
+<div class="floating-chatbot" *ngIf="showChatbot">
+  <ion-button fill="clear" class="exit-btn" (click)="toggleChatbot()">❌</ion-button>
+
+  <div class="chat-messages">
+    <div *ngFor="let msg of chatMessages" [ngClass]="msg.role">
+      <div class="bubble">{{ msg.content }}</div>
+    </div>
+  </div>
+
+  <ion-input
+    placeholder="Posez une question sur les incidents..."
+    [(ngModel)]="chatInput"
+    (keyup.enter)="sendChatMessage()"
+    class="chat-input"
+  ></ion-input>
+
+  <ion-button expand="full" (click)="sendChatMessage()">Envoyer</ion-button>
+</div>
+<!-- Floating Filter Panel -->
+<div class="floating-filter" *ngIf="showFilter">
+<ion-button fill="clear" class="exit-btn" (click)="toggleFilter()">
+  ❌
+</ion-button>
+
+
+<ion-item>
+  <ion-label position="stacked">Date</ion-label>
+  <ion-input [(ngModel)]="filter.date" type="date"></ion-input>
+</ion-item>
+
+<ion-item>
+  <ion-label position="stacked">Date de déclaration</ion-label>
+  <ion-input [(ngModel)]="filter.declarationDate" type="date"></ion-input>
+</ion-item>
+
+
+<div class="status-buttons">
+  <ion-button
+size="small"
+[fill]="filter.status === 'En cours' ? 'solid' : 'outline'"
+[ngClass]="filter.status === 'En cours' ? 'filter-button-en-cours' : ''"
+(click)="filter.status = 'En cours'">En cours</ion-button>
+
+<ion-button
+size="small"
+[fill]="filter.status === 'Rejeté(es)' ? 'solid' : 'outline'"
+[ngClass]="filter.status === 'Rejeté(es)' ? 'filter-button-rejete' : ''"
+(click)="filter.status = 'Rejeté(es)'">Rejeté(es)</ion-button>
+
+<ion-button
+size="small"
+[fill]="filter.status === 'Validé' ? 'solid' : 'outline'"
+[ngClass]="filter.status === 'Validé' ? 'filter-button-valide' : ''"
+(click)="filter.status = 'Validé'">Validé</ion-button>
+
+<ion-button
+size="small"
+[fill]="filter.status === 'Programmé(e)' ? 'solid' : 'outline'"
+[ngClass]="filter.status === 'Programmé(e)' ? 'filter-button-programme' : ''"
+(click)="filter.status = 'Programmé(e)'">Programmé(e)</ion-button>
+
+</div>
+
+<div class="filter-actions">
+  <ion-button size="small" fill="clear" (click)="resetFilter()">Cancel</ion-button>
+  <ion-button size="small" (click)="applyFilter()">Apply</ion-button>
+</div>
+</div>
+
+
+<ion-list *ngIf="!isLoading && !error" class="list">
+  <ion-item *ngFor="let incident of filteredIncidents" class="incident-item">
+    <div class="incident-container">
+      <div class="incident-statut" [ngClass]="getStatusClass(incident.stateStr)">
+        {{ incident.stateStr }}
+      </div>           
+      <div class="incident-content">
+        <div class="incident-title">{{ incident.code }}</div>
+        <div class="incident-subtitle">{{ incident.designation }}</div>
+        <div class="incident-date">{{ incident.incidentDate | date:'dd/MM/yyyy' }}</div>
+        <div class="incident-creator">{{ incident.employeeFullName }}</div>
+        <div *ngIf="selectedIncidentId === incident.id" class="incident-details ion-padding-start">
+          <div class="incident-detail">
+            <strong>Date de déclaration:</strong> {{ incident.declarationDate || 'Date non défini'}}
+          </div>
+          <div class="incident-detail">
+            <strong>Type:</strong> {{ incident.typeStr || 'Type non défini'}}
+          </div>
+          <div class="incident-detail" [ngClass]="{ 'placeholder': !incident.description }">
+            <strong>Description:</strong> <span [innerHTML]="incident.description || 'Description non définie'"></span>
+          </div>
+          <div class="incident-detail" [ngClass]="{ 'placeholder': !incident.cause }">
+            <strong>Cause:</strong> <span [innerHTML]="incident.cause || 'Cause non définie'"></span>
+          </div>
+          <div class="incident-detail" [ngClass]="{ 'placeholder': !incident.consequence }">
+            <strong>Conséquence:</strong> <span [innerHTML]="incident.consequence || 'Conséquence non définie'"></span>
+          </div>
+          <div class="incident-detail" [ngClass]="{ 'placeholder': !incident.observation }">
+            <strong>constat</strong> <span [innerHTML]=" incident.observation  || 'constat non définie'"></span>
+          </div>
+          <div class="incident-detail" [ngClass]="{ 'placeholder': !incident.duration }">
+            <strong>Durée:</strong> {{ incident.duration ? incident.duration + ' minutes' : 'Durée non définie' }}
+          </div>
+          <div class="incident-detail" [ngClass]="{ 'placeholder': !incident.system }">
+            <strong>Système:</strong> <span [innerHTML]="incident.system || 'Système non défini'"></span>
+          </div>
+        </div>
+    </div>
+        
+        <div class="incident-actions">
+          <ion-icon name="chatbubbles-outline" (click)="showMessageOptions(incident)" class="action-icon"></ion-icon>
+          <ion-icon
+            [name]="selectedIncidentId === incident.id ? 'eye-off-outline' : 'eye-outline'"(click)="toggleDetails(incident)"class="action-icon">
+          </ion-icon>
+          <ion-icon name="pencil-outline" (click)="editIncident(incident)" class="action-icon"></ion-icon>
+          <ion-icon name="trash-outline" (click)="confirmDelete(incident)" class="action-icon"></ion-icon>
+        </div>
+    
+      </div> 
+    </ion-item>
+  </ion-list>
+
+  <div *ngIf="error" class="ion-text-center ion-padding">
+    <ion-icon name="alert-circle-outline" color="danger" size="large"></ion-icon>
+    <p>{{ error }}</p>
+    <ion-button (click)="loadIncidents()">Réessayer</ion-button>
+  </div>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button  (click)="navigateToAddIncident()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

@@ -1,0 +1,62 @@
+.home-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: white; 
+    padding: 20px;
+}
+
+.logo {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.logo img {
+    width: 70%; 
+    max-width: 480px;
+    margin-bottom: 100px;
+}
+
+/* Button container */
+.btn {
+    width: 100%; 
+    display: flex;
+    justify-content: center; 
+}
+
+/* Button styles */
+.btn button {
+    width: 80%; 
+    max-width: 480px;
+    padding: 18px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    background-color: #3366ee; 
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-bottom: 20px;
+}
+
+/* Button hover effect */
+.btn button:hover {
+    background-color: #2554cc; 
+}
+
+/* Responsive adjustments */
+@media (max-width: 500px) {
+    .logo img {
+        width: 85%; 
+    }
+
+    .btn button {
+        font-size: 14px;
+        padding: 12px;
+        max-width: 260px;
+    }
+}

@@ -1,0 +1,141 @@
+<app-nav-header title="Ajouter un incident" backUrl="/incident-list"></app-nav-header>
+
+<ion-content class="ion-padding">
+  <form class=" page-content" [formGroup]="incidentForm" (ngSubmit)="onSubmit()">
+    <ion-item>
+      <ion-label class="label" position="stacked">Désignation:</ion-label>
+      <input  maxlength="10"  formControlName="designation" type="text"/>
+    </ion-item>
+<div class="dates">
+    <ion-item>
+      <ion-label class="label" position="stacked">Date:</ion-label>
+      <input class="input-label" formControlName="date" type="date"/>
+    </ion-item>
+
+    <ion-item>
+      <ion-label class="label" position="stacked">Date de déclaration:</ion-label>
+      <input class="input-label" formControlName="dateDeclaration" type="date"/>
+    </ion-item>
+  </div>
+  <ion-item-divider>
+  </ion-item-divider>
+    <div style="margin-top: 2em;">
+        <ion-label class="label titleLabel">Équipe:</ion-label>
+      </div>
+
+<div class="participants-container">
+      <div class="header-row">
+        <div class="nomPrenom">Nom et prénom</div>
+        <div class="superviseur">Superviseur</div>
+        <div class="membre">Membre</div>
+        <div class="informe">À informer</div>
+        <div class="commentaire">Commentaire</div>
+        <div></div>
+      </div>
+      <div class="colmuns-row">
+      <ion-row *ngFor="let participant of participants" class="participant-row">
+        <ion-col><div class="nomPrenom">{{ participant.fullName }}</div></ion-col>
+        <ion-col class="superviseurCheckbox">
+          <ion-checkbox 
+            [formControl]="participant.isAdminControl"
+            (ionChange)="updateParticipantRoles(participant, 'supervisor', $event.detail.checked)"
+            [disabled]="participant.id === currentUser?.id">
+          </ion-checkbox>
+        </ion-col>
+        <ion-col class="membreCheckbox">
+          <ion-checkbox 
+            [formControl]="participant.isMemberControl"
+            (ionChange)="updateParticipantRoles(participant, 'member', $event.detail.checked)"
+            [disabled]="participant.id === currentUser?.id">
+          </ion-checkbox>
+        </ion-col>
+        <ion-col class="informeCheckbox">
+          <ion-checkbox 
+            [formControl]="participant.isInformedControl"
+            (ionChange)="updateParticipantRoles(participant, 'informed', $event.detail.checked)">
+          </ion-checkbox>
+        </ion-col>
+        <ion-col class="commentaire">
+          <input [formControl]="participant.commentControl" placeholder="Ajouter un commentaire"/>
+        </ion-col>
+        <ion-col>
+          <ion-button  fill="clear" color="danger" (click)="removeParticipant(participant)" [disabled]="participant.id === currentUser?.id">
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </div>
+
+    <ion-item class="add-participant-button" button (click)="addParticipant()">
+      <ion-icon name="add-outline" slot="start"></ion-icon>
+      Ajouter un membre
+    </ion-item>
+  </div>
+  
+    <div class="description-section">
+      <div class="description-label">Description</div>
+      <quill-editor
+      class="richText"
+        formControlName="description"
+        [modules]="editorModules"
+        theme="snow"
+        placeholder="Écris ton commentaire ici...">
+      </quill-editor>
+    </div>
+    
+    <ion-item>
+      <ion-label class="label" position="stacked">Durée (en minutes)</ion-label>
+      <input formControlName="duration" type="number" min="0"/>
+    </ion-item>
+
+      
+      
+    <div class="description-section">
+      <div class="description-label">constat</div>
+      <quill-editor
+        class="richText"
+        formControlName="observation"
+        [modules]="editorModules"
+        theme="snow"
+        placeholder="Écris ton commentaire ici...">
+      </quill-editor>
+    </div>
+
+    <div class="description-section">
+      <div class="description-label">causes</div>
+      <quill-editor
+      class="richText"
+        formControlName="causes"
+        [modules]="editorModules"
+        theme="snow"
+        placeholder="Écris ton commentaire ici...">
+      </quill-editor>
+    </div>
+
+    <div class="description-section">
+      <div class="description-label">consequences</div>
+      <quill-editor
+      class="richText"
+        formControlName="consequences"
+        [modules]="editorModules"
+        theme="snow"
+        placeholder="Écris ton commentaire ici...">
+      </quill-editor>
+    </div>
+
+    <ion-item>
+      <ion-label class="label" position="stacked">Fichiers</ion-label>
+      <input type="file" multiple (change)="onFileChange($event)"/>
+    </ion-item>
+
+    <div class="ion-padding BUTTONS">
+      <ion-button expand="block" type="submit" [disabled]="!incidentForm.valid || isSubmitting">
+        <ion-spinner *ngIf="isSubmitting"></ion-spinner>
+        <span *ngIf="!isSubmitting" aria-label="Valider">Valider</span>
+      </ion-button>
+      <ion-button style="border: solid 1px;border-radius: 5px;" expand="block" fill="clear" routerLink="/incident-list">
+        Annuler
+      </ion-button>
+    </div>
+  </form>
+</ion-content>

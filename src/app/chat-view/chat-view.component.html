@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/incident-list"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ groupTitle || 'Chat' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-list>
+    <ion-item *ngFor="let message of messages" 
+              [class.user-message]="message.senderId === currentUserId">
+      <ion-avatar slot="start" *ngIf="message.senderId !== currentUserId">
+        <img [src]="message.senderAvatar || 'assets/default-avatar.png'" alt="avatar">
+      </ion-avatar>
+      <ion-label class="ion-text-wrap">
+        <h3 *ngIf="message.senderId !== currentUserId">{{ message.senderName }}</h3>
+        <p>{{ message.content }}</p>
+        <p class="timestamp">{{ message.timestamp | date:'short' }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-item lines="none">
+      <ion-input [(ngModel)]="newMessage" 
+                placeholder="Tapez votre message..." 
+                type="text">
+      </ion-input>
+      <ion-button slot="end" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+        <ion-icon name="send"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-toolbar>
+</ion-footer> 

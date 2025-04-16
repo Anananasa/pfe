@@ -1,0 +1,7 @@
+{
+  "/api/*": {
+    "target": "https://timserver.northeurope.cloudapp.azure.com/QalitasWebApi",
+    "secure": true,
+    "changeOrigin": true
+  }
+} 
