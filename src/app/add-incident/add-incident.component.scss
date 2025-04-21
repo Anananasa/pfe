@@ -1,20 +1,3 @@
-ion-item {
-  --padding-start: 0;
-  --padding-end: 0;
-  --inner-padding-end: 0;
-  margin: 0;
-  padding: 0;
-  background: transparent;
-  --background: transparent;
-  --border-color: transparent;
-  box-shadow: none;
-
-  &::part(native) {
-    padding: 0;
-    margin: 0;
-  }
-}
-
 ion-label {
   font-weight: 600;
   color: #333;
@@ -22,8 +5,7 @@ ion-label {
   margin-top: 16px; 
 }
 
-ion-input,
-ion-textarea {
+ion-input {
   background: #f4f5f8;
   border-radius: 8px;
   padding: 12px; 
@@ -31,30 +13,6 @@ ion-textarea {
   font-size: 14px;
   margin-top: 16px;
   margin-bottom: 16px;
-}
-
-ion-textarea {
-  min-height: 100px;
-}
-
-.button-group {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 24px; 
-}
-
-.cancel-button {
-  border: 1px solid #3b82f6;
-  color: #3b82f6;
-  border-radius: 8px;
-  padding: 12px 24px;
-}
-
-.submit-button {
-  background: #3b82f6;
-  color: white;
-  border-radius: 8px;
-  padding: 12px 24px;
 }
 
 ion-grid {
@@ -68,7 +26,7 @@ ion-grid {
   width: 100%;
 }
 
-.add-participant-button{
+.add-participant-button {
   display: flex;
   justify-content: start;
   align-items: center;
@@ -77,7 +35,7 @@ ion-grid {
   color: var(--ion-color-secondary);
 }
 
-.titleLabel{
+.titleLabel {
   color: var(--ion-color-primary);
   margin-top: 10em;
 }
@@ -86,32 +44,89 @@ ion-grid {
   font-size: 24px;
   margin-top: 1em;
   color: var(--ion-color-primary);
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: block;
+}
+.description-label{
+  font-size: 18px;
+  margin-top: 1em;
+  color: var(--ion-color-primary);
+  font-weight: 600;
+  margin-bottom: 6px;
 }
 
-.dates{
+.dates {
   display: flex;
   flex-direction: row;
   justify-content: start;
   gap: 2em;
+  flex-wrap: wrap;
+}
+
+.dates ion-item {
+  flex: 1;
+  min-width: 200px;
+  max-width: 300px;
+}
+
+@media screen and (max-width: 768px) {
+  .dates ion-item {
+    min-width: 150px;
+    max-width: 220px;
+  }
+}
+
+@media screen and (max-width: 780px) {
+  .dates {
+    flex-direction: column;
+    gap: 1em;
+  }
+
+  .dates ion-item {
+    width: 100%;
+    min-width: unset;
+    max-width: unset;
+  }
 }
 
 .page-content {
   padding: 1em;
 }
 
-.input-label{
+.input-label {
   padding: 1em;
 }
 
-.BUTTONS{
+.BUTTONS {
   max-width: 300px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
 }
+.scrollable-grid{
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+ion-grid {
+  min-width: 700px; // or whatever is needed to fit your columns properly
+}
+.participant-row {
+  border-bottom: 1px solid var(--ion-color-light);
+  
+  &:last-child {
+    border-bottom: none;
+  }
 
-  /* From Uiverse.io by alexruix */ 
-input {
+  ion-col {
+    display: flex;
+    align-items: center;
+    padding: 12px 8px;
+  }
+}
+.input-label{
+  padding: 1em;
+
   margin-top: 1em;
   max-width: 220px;
   background-color: #f5f5f5;
@@ -133,61 +148,16 @@ input:focus {
 input:hover {
   outline: 1px solid lightgrey;
 }
-
-.participants-container{
-  margin: 2em;
+ion-checkbox {
+  --size: 20px;
+  margin: 0 auto;
 }
-
-.cancel-button{
-  border: solid 1px;
-  border-radius: 5px;
+ion-grid {
+  --ion-grid-padding: 0;
+  border: 1px solid var(--ion-color-light);
+  border-radius: 8px;
+  margin: 16px 0;
 }
-
-.nomPrenom{
-  width: 200px;
-}
-
-.superviseur{
-  width: 100px;
-  margin-left: 1em;
-  text-align: center;
-}
-
-.superviseurCheckbox{
-  margin-left: 2em;
-}
-
-.membreCheckbox{
-  margin-left: 5.25em;
-}
-
-.membre{
-  width: 100px;
-  margin-left: 1em;
-  text-align: center;
-}
-
-.informe{
-  width: 100px;
-  margin-left: 1em;
-  text-align: center;
-}
-
-.informeCheckbox{
-  margin-left: 5.25em;
-}
-
-.commentaire{
-  width: 300px;
-  margin-left: 1em;
-  text-align: center;
-}
-.colmuns-row{
-  background-color: var(--ion-color-light); 
-  display: flex;
-  justify-content: start;
-}
-
 .header-row {
 
   display: flex;
@@ -197,52 +167,15 @@ input:hover {
   justify-content: start;
   padding: 12px 8px;
 
-
-  @media (max-width: 768px) {
-    font-size: 12px;
-  }
-  @media (max-width: 480px) {
-    font-size: 10px;
-  }
-  @media (max-width: 320px) {
-    font-size: 8px;
-  }
 }
-
-.participant-row {
-  border-bottom: 1px solid var(--ion-color-light);
-  
-  &:last-child {
-    border-bottom: none;
-  }
-
-  ion-col {
-    display: flex;
-    align-items: center;
-    padding: 12px 8px;
-  }
-}
-
-ion-checkbox {
-  --size: 20px;
-  margin: 0 auto;
-}
-
-.html-editor {
-  border: 1px solid var(--ion-color-medium);
-  border-radius: 4px;
-  padding: 8px;
-  min-height: 100px;
-  background: var(--ion-color-light);
-  margin: 8px 0;
-  overflow-y: auto;
-}
-
-.format-buttons {
-  display: flex;
-  gap: 5px;
-  margin-bottom: 5px;
-  flex-wrap: wrap;
+.input {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #fff;
 }
 
 ion-button {
@@ -261,111 +194,11 @@ ion-button ion-icon + span {
 
 .description-section {
   margin: 16px;
-  
-  .description-label {
-    font-weight: 600;
+}
+
+.description-section  {
+  font-weight: 600;
   color: #333;
   margin-bottom: 8px;
-  margin-top: 16px; 
-  }
-
-  ::ng-deep {
-    .ck-editor__editable_inline {
-      min-height: 200px;
-      max-height: 400px;
-      border: 1px solid var(--ion-color-light) !important;
-    }
-
-    .ck.ck-editor__main > .ck-editor__editable {
-      background-color: var(--ion-background-color);
-      color: var(--ion-text-color);
-    }
-
-    .ck.ck-toolbar {
-      background-color: var(--ion-color-light);
-      border: none;
-    }
-
-    .ck.ck-button {
-      color: var(--ion-color-dark);
-      
-      &:hover {
-        background-color: var(--ion-color-medium-tint);
-      }
-    }
-
-    // Styles pour WProofreader
-    .wsc-spelling-problem {
-      border-bottom: 2px solid #ff4444;
-    }
-
-    .wsc-grammar-problem {
-      border-bottom: 2px solid #ffa500;
-    }
-
-    .wsc-suggestion-list {
-      background-color: var(--ion-background-color);
-      border: 1px solid var(--ion-color-light);
-      border-radius: 4px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .wsc-suggestion-item {
-      color: var(--ion-text-color);
-      padding: 8px 12px;
-
-      &:hover {
-        background-color: var(--ion-color-light);
-      }
-    }
-  }
-}
-
-:host ::ng-deep {
-  .tox-tinymce {
-    border: 1px solid #e0e0e0 !important;
-    border-radius: 4px !important;
-  }
-
-  .tox .tox-toolbar__group {
-    padding: 0 4px !important;
-  }
-
-  .tox .tox-toolbar__primary {
-    background: #ffffff !important;
-    border-bottom: 1px solid #e0e0e0 !important;
-  }
-
-  .tox .tox-edit-area__iframe {
-    background: #ffffff !important;
-  }
-
-  .mce-content-body img {
-    vertical-align: middle;
-  }
-
-  .mce-content-body table {
-    width: 50%;
-  }
-
-  .mce-content-body table td:last-child {
-    text-align: right;
-  }
-}
-
-// Suppression des anciens styles
-.dx-htmleditor,
-.dx-toolbar,
-.dx-toolbar-items-container,
-.dx-toolbar-item,
-.dx-button {
-  display: none !important;
-}
-
-.large-label {
-  font-size: 14px;
-  font-weight: normal;
-  color: #666;
-  margin: 0 0 8px 0;
-  padding: 0;
+  margin-top: 16px;
 }

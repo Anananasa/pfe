@@ -23,7 +23,7 @@ ion-content {
   flex-direction: row; /* Horizontal layout */
   width: 100%;
   padding: 0;
-  border: solid 1px black;
+  border: solid 1px rgb(153, 153, 153);
   border-radius: 8px;
   @media (max-width:600px) {
     flex-direction: column;
@@ -113,13 +113,13 @@ ion-content {
 
 /* Orange for 'En cours' */
 .status-en-cours {
-  background-color: #ffc107; /* yellow/orange */
+  background-color: red; /* yellow/orange */
   color: black;
 }
 
 /* Red for 'Rejeté' */
 .status-rejete {
-  background-color: red; /* red */
+  background-color: #ffc107; /* red */
 }
 .incident-details {
   background-color: #f9f9f9;

@@ -19,6 +19,17 @@ export interface Employee {
   serviceDesignation?: string;
 }
 
+export interface users {
+  UserId: string;
+  UserName: string;
+  fullName: string;
+  ServiceDesignation: string;
+  urlImg: string;
+  IsEnabled: boolean;
+  isAdmin: boolean;
+}
+
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private apiUrl = 'https://timserver.northeurope.cloudapp.azure.com/QalitasWebApi';
@@ -44,8 +55,20 @@ export class AuthService {
       })
     );
   }
+ 
 
-  
+ 
+
+  getuser(): Observable<users[]> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json'
+    });
+    return this.http.get<users[]>(`${this.apiUrl}/api/ChatGroup/users`, { headers }).pipe(
+        
+    );
+  }
 
   getIncidents() {
     const token = localStorage.getItem('token');

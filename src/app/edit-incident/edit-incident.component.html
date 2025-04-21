@@ -1,39 +1,34 @@
 <app-nav-header title="Modifier l'incident" backUrl="/incident-list"></app-nav-header>
 
 <ion-content class="ion-padding">
-  <div *ngIf="error" class="ion-text-center ion-padding">
-    <ion-icon name="alert-circle-outline" color="danger" size="large"></ion-icon>
-    <p>{{ error }}</p>
+  <form class=" page-content" [formGroup]="incidentForm" (ngSubmit)="onSubmit()">
+    <ion-item>
+      <ion-label class="label" position="stacked">Désignation:</ion-label>
+      <input  maxlength="100"  class="input" formControlName="designation" type="text"/>
+    </ion-item>     
+<div class="dates">
+    <ion-item>
+      <ion-label class="label" position="stacked">Date de l'incident:</ion-label>
+      <input class="input-label" formControlName="date" type="date"/>
+    </ion-item>
+
+    <ion-item>
+      <ion-label class="label" position="stacked">Date de déclaration:</ion-label>
+      <input class="input-label" formControlName="dateDeclaration" type="date"/>
+    </ion-item>
   </div>
 
-  <form [formGroup]="incidentForm" (ngSubmit)="onSubmit()">
-    <ion-item>
-      <ion-label position="stacked">Désignation *</ion-label>
-      <ion-input formControlName="designation" type="text"></ion-input>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">Date de l'incident *</ion-label>
-      <ion-input formControlName="date" type="date"></ion-input>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">Date de déclaration *</ion-label>
-      <ion-input formControlName="dateDeclaration" type="date"></ion-input>
-    </ion-item>
-
     <ion-item-divider>
-      <ion-label>Équipes</ion-label>
+      <ion-label class="label">Équipes</ion-label>
     </ion-item-divider>
-
-    <ion-grid>
+  <div class="scrollable-grid">
+    <ion-grid class="sc rollable-content">  
       <ion-row class="header-row">
         <ion-col size="3">Nom et prénom</ion-col>
         <ion-col size="2">Superviseur</ion-col>
         <ion-col size="2">Membre</ion-col>
         <ion-col size="2">À informer</ion-col>
         <ion-col size="2">Commentaire</ion-col>
-        <ion-col size="1">Actions</ion-col>
       </ion-row>
 
       <ion-row *ngFor="let participant of participants" class="participant-row">
@@ -41,22 +36,19 @@
         <ion-col size="2">
           <ion-checkbox 
             [formControl]="participant.isAdminControl"
-            (ionChange)="updateParticipantRoles(participant, 'supervisor', $event.detail.checked)">
-            Superviseur
+            (ionChange)="updateParticipantRoles(participant, 'supervisor', $event.detail.checked)"> 
           </ion-checkbox>
         </ion-col>
         <ion-col size="2">
           <ion-checkbox 
             [formControl]="participant.isMemberControl"
             (ionChange)="updateParticipantRoles(participant, 'member', $event.detail.checked)">
-            Membre
           </ion-checkbox>
         </ion-col>
         <ion-col size="2">
           <ion-checkbox 
             [formControl]="participant.isInformedControl"
             (ionChange)="updateParticipantRoles(participant, 'informed', $event.detail.checked)">
-            Informé
           </ion-checkbox>
         </ion-col>
         <ion-col size="2">
@@ -74,33 +66,65 @@
       <ion-icon name="add-outline" slot="start"></ion-icon>
       <ion-label>Ajouter un membre</ion-label>
     </ion-item>
-
+  </div>
+    <div class="description-section">
+      <div class="description-label">Description</div>
+      <quill-editor
+      class="richText"
+        formControlName="description"
+        [modules]="editorModules"
+        theme="snow"
+        placeholder="Écris ici...">
+      </quill-editor>
+    </div>
+    
     <ion-item>
-      <ion-label position="stacked">Description</ion-label>
-      <ion-textarea formControlName="description" rows="4"></ion-textarea>
+      <ion-label class="label" position="stacked">Durée (en minutes)</ion-label>
+      <input class="input"formControlName="duration" type="number" min="0"/>
     </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">Durée</ion-label>
-      <ion-input formControlName="duration" type="number" min="0"></ion-input>
-    </ion-item>
+      
+      
+    <div class="description-section">
+      <div class="description-label">constat</div>
+      <quill-editor
+        class="richText"
+        formControlName="observation"
+        [modules]="editorModules"
+        theme="snow"
+        placeholder="Écris ici...">
+      </quill-editor>
+    </div>
 
-    <ion-item>
-      <ion-label position="stacked">Causes</ion-label>
-      <ion-textarea formControlName="causes" rows="4"></ion-textarea>
-    </ion-item>
+    <div class="description-section">
+      <div class="description-label">causes</div>
+      <quill-editor
+      class="richText"
+        formControlName="causes"
+        [modules]="editorModules"
+        theme="snow"
+        placeholder="Écris ici...">
+      </quill-editor>
+    </div>
 
-    <ion-item>
-      <ion-label position="stacked">Conséquences</ion-label>
-      <ion-textarea formControlName="consequences" rows="4"></ion-textarea>
-    </ion-item>
+    <div class="description-section">
+      <div class="description-label">consequences</div>
+      <quill-editor
+      class="richText"
+        formControlName="consequences"
+        [modules]="editorModules"
+        theme="snow"
+        placeholder="Écris    ici...">
+      </quill-editor>
+    </div>
 
-    <div class="ion-padding">
+
+    <div class="ion-padding BUTTONS">
       <ion-button expand="block" type="submit" [disabled]="!incidentForm.valid || isSubmitting">
         <ion-spinner *ngIf="isSubmitting"></ion-spinner>
         <span *ngIf="!isSubmitting">Enregistrer</span>
       </ion-button>
-      <ion-button expand="block" fill="clear" routerLink="/incident-list">
+      <ion-button style="border: solid 1px;border-radius: 5px;" expand="block" fill="clear" routerLink="/incident-list">
         Annuler
       </ion-button>
     </div>

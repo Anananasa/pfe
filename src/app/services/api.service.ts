@@ -65,6 +65,14 @@ export class ApiService {
     });
     return this.http.get(`${this.apiUrl}/Employees`, { headers });
   }
+  getusers(): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json'
+    });
+    return this.http.get(`${this.apiUrl}/ChatGroup/users`, { headers });
+  }
 
   createIncident(incident: any): Observable<any> {
     const token = localStorage.getItem('token');
@@ -112,7 +120,7 @@ export class ApiService {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
-    return this.http.put<Incident>(`${this.apiUrl}/Incidents/${id}`, incident, { headers });
+    return this.http.put<Incident>(`${this.apiUrl}/Incidents/${id}`, incident, { headers });  
   }
 
   getIncident(id: string): Observable<Incident> {

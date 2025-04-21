@@ -7,6 +7,7 @@ import { ApiService, Incident } from '../services/api.service';
 import { IncidentStateService } from '../services/incident-state.service';
 import { NavHeaderComponent } from '../nav-header/nav-header.component';
 import { AuthService ,Employee} from '../services/auth.service';
+import { QuillModule } from 'ngx-quill';
 
 interface IncidentTeamDto {
   employeeId: string;
@@ -48,7 +49,8 @@ interface GroupParticipantForm extends GroupParticipant {
     ReactiveFormsModule,
     FormsModule,
     RouterModule,
-    NavHeaderComponent
+    NavHeaderComponent,
+    QuillModule
   ]
 })
 export class EditIncidentComponent implements OnInit {
@@ -60,6 +62,13 @@ export class EditIncidentComponent implements OnInit {
   participants: GroupParticipantForm[] = [];
   availableEmployees: Employee[] = [];
   currentUser: Employee | null = null;
+  editorModules = {
+    toolbar: [
+      ['bold', 'italic', 'underline'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['clean']
+    ]
+  };
 
   constructor(
     private fb: FormBuilder,
@@ -77,6 +86,7 @@ export class EditIncidentComponent implements OnInit {
       dateDeclaration: ['', Validators.required],
       description: [''],
       duration: [0],
+      observation: [''],
       causes: [''],
       consequences: [''],
       state: [0]
@@ -125,6 +135,7 @@ export class EditIncidentComponent implements OnInit {
           dateDeclaration: this.formatDateForInput(incident.declarationDate),
           description: incident.description,
           duration: incident.duration || 0,
+          observation:incident.observation,
           causes: incident.cause,
           consequences: incident.consequence,
           state: incident.state
@@ -379,6 +390,7 @@ export class EditIncidentComponent implements OnInit {
         declarationDate: formatDate(this.incidentForm.value.dateDeclaration),
         description: this.cleanHtmlContent(this.incidentForm.value.description),
         duration: this.incidentForm.value.duration || 0,
+        observation: this.incidentForm.value.observation,
         cause: this.cleanHtmlContent(this.incidentForm.value.causes),
         consequence: this.cleanHtmlContent(this.incidentForm.value.consequences),
         state: this.incidentForm.value.state,

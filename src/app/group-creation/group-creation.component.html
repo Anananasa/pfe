@@ -20,13 +20,13 @@
 
     <ion-item *ngFor="let participant of participants">
       <ion-avatar slot="start">
-        <img [src]="getEmployeePhotoUrl(participant)" alt="avatar">
+        <img [src]="getuserPhotoUrl(participant)" alt="avatar">
       </ion-avatar>
       <ion-label>
         <h2>{{ participant.fullName }}</h2>
         <p>{{ participant.isAdmin ? 'Administrateur' : 'Membre' }}</p>
       </ion-label>
-      <ion-buttons slot="end" *ngIf="participant.id !== currentUser?.id">
+      <ion-buttons slot="end" *ngIf="">
         <ion-button (click)="toggleRole(participant)">
           <ion-icon [name]="participant.isAdmin ? 'shield' : 'person'"></ion-icon>
         </ion-button>

@@ -31,7 +31,7 @@
 </ion-fab>
 <!-- Floating Chatbot Panel -->
 <div class="floating-chatbot" *ngIf="showChatbot">
-  <ion-button fill="clear" class="exit-btn" (click)="toggleChatbot()">❌</ion-button>
+  
 
   <div class="chat-messages">
     <div *ngFor="let msg of chatMessages" [ngClass]="msg.role">
@@ -50,9 +50,7 @@
 </div>
 <!-- Floating Filter Panel -->
 <div class="floating-filter" *ngIf="showFilter">
-<ion-button fill="clear" class="exit-btn" (click)="toggleFilter()">
-  ❌
-</ion-button>
+
 
 
 <ion-item>
@@ -94,7 +92,7 @@ size="small"
 </div>
 
 <div class="filter-actions">
-  <ion-button size="small" fill="clear" (click)="resetFilter()">Cancel</ion-button>
+  <ion-button size="small" fill="clear" (click)="resetFilter()">Reset</ion-button>
   <ion-button size="small" (click)="applyFilter()">Apply</ion-button>
 </div>
 </div>

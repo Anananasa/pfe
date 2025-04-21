@@ -138,8 +138,8 @@ export class IncidentListComponent implements OnInit, OnDestroy {
 
   async confirmDelete(incident: any) {
     const alert = await this.alertController.create({
-      header: 'Confirmer la suppression',
-      message: `Êtes-vous sûr de vouloir supprimer l'incident "${incident.designation}" ?`,
+      header: 'suppression',
+      message: `Voulez-Vous supprimer l'incident "${incident.designation}" ?`,
       buttons: [
         {
           text: 'Annuler',
@@ -170,38 +170,29 @@ export class IncidentListComponent implements OnInit, OnDestroy {
   }
 
   async deleteIncident(incident: any) {
-    const alert = await this.alertController.create({
-      header: 'Confirmer la suppression',
-      message: 'Êtes-vous sûr de vouloir supprimer cet incident ?',
-      buttons: [
-        {
-          text: 'Annuler',
-          role: 'cancel'
-        },
-        {
-          text: 'Supprimer',
-          handler: () => {
-            const incidentData = {
-              ...incident,
-              crudFrom: 3
-            };
-            this.apiService.deleteIncident(incident.id).subscribe({
-              next: () => {
-                this.incidentState.triggerRefresh();
-                this.presentToast('Incident supprimé avec succès');
-              },
-              error: (error) => {
-                console.error('Erreur lors de la suppression:', error);
-                this.presentToast('Erreur lors de la suppression de l\'incident');
-              }
-            });
-          }
-        }
-      ]
+    if (incident.stateStr !== 'Rejeté(es)' && incident.stateStr !== 'Validé') {
+      this.presentToast('Seuls les incidents Rejeté(es) ou Validé peuvent être supprimés');
+      return;
+    }
+  
+    const incidentData = {
+      ...incident,
+      crudFrom: 3
+    };
+  
+    this.apiService.deleteIncident(incident.id).subscribe({
+      next: () => {
+        this.incidentState.triggerRefresh();
+        this.presentToast('Incident supprimé avec succès');
+      },
+      error: (error) => {
+        console.error('Erreur lors de la suppression:', error);
+        this.presentToast('Erreur lors de la suppression de l\'incident');
+      }
     });
-
-    await alert.present();
   }
+  
+  
 
   async showToast(message: string, color: string = 'primary') {
     const toast = await this.toastController.create({
@@ -339,13 +330,14 @@ export class IncidentListComponent implements OnInit, OnDestroy {
   navigateToAddIncident() {
     this.router.navigate(['/add-incident']);
   }
+  toggleChatbot() {
+    this.showChatbot = !this.showChatbot;
+  }
 showChatbot = false;
 chatInput: string = '';
 chatMessages: { role: string, content: string }[] = [];
 isThinking = false;
-toggleChatbot() {
-  this.showChatbot = !this.showChatbot;
-}
+
 
 sendChatMessage() {
   const input = this.chatInput.trim();

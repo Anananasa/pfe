@@ -2,75 +2,70 @@
 
 <ion-content class="ion-padding">
   <form class=" page-content" [formGroup]="incidentForm" (ngSubmit)="onSubmit()">
-    <ion-item>
-      <ion-label class="label" position="stacked">Désignation:</ion-label>
-      <input  maxlength="10"  formControlName="designation" type="text"/>
-    </ion-item>
-<div class="dates">
-    <ion-item>
-      <ion-label class="label" position="stacked">Date:</ion-label>
-      <input class="input-label" formControlName="date" type="date"/>
-    </ion-item>
-
-    <ion-item>
-      <ion-label class="label" position="stacked">Date de déclaration:</ion-label>
-      <input class="input-label" formControlName="dateDeclaration" type="date"/>
-    </ion-item>
-  </div>
+      <ion-item>
+        <ion-label class="label" position="stacked">Désignation:</ion-label>
+        <input  maxlength="50"  class="input" formControlName="designation" type="text"/>
+      </ion-item>
+      <div class="dates">
+        <ion-item>
+          <ion-label class="label" position="stacked">Date de l'incident:</ion-label>
+          <input class="input-label" formControlName="date" type="date"/>
+        </ion-item>
+    
+        <ion-item>
+          <ion-label class="label" position="stacked">Date de déclaration:</ion-label>
+          <input class="input-label" formControlName="dateDeclaration" type="date"/>
+        </ion-item>
+      </div>
   <ion-item-divider>
+    <ion-label class="label">Équipes</ion-label>
   </ion-item-divider>
-    <div style="margin-top: 2em;">
-        <ion-label class="label titleLabel">Équipe:</ion-label>
-      </div>
+<div class="scrollable-grid">
+  <ion-grid class="sc rollable-content">  
+    <ion-row class="header-row">
+      <ion-col size="3">Nom et prénom</ion-col>
+      <ion-col size="2">Superviseur</ion-col>
+      <ion-col size="2">Membre</ion-col>
+      <ion-col size="2">À informer</ion-col>
+      <ion-col size="2">Commentaire</ion-col>
+    </ion-row>
 
-<div class="participants-container">
-      <div class="header-row">
-        <div class="nomPrenom">Nom et prénom</div>
-        <div class="superviseur">Superviseur</div>
-        <div class="membre">Membre</div>
-        <div class="informe">À informer</div>
-        <div class="commentaire">Commentaire</div>
-        <div></div>
-      </div>
-      <div class="colmuns-row">
-      <ion-row *ngFor="let participant of participants" class="participant-row">
-        <ion-col><div class="nomPrenom">{{ participant.fullName }}</div></ion-col>
-        <ion-col class="superviseurCheckbox">
-          <ion-checkbox 
-            [formControl]="participant.isAdminControl"
-            (ionChange)="updateParticipantRoles(participant, 'supervisor', $event.detail.checked)"
-            [disabled]="participant.id === currentUser?.id">
-          </ion-checkbox>
-        </ion-col>
-        <ion-col class="membreCheckbox">
-          <ion-checkbox 
-            [formControl]="participant.isMemberControl"
-            (ionChange)="updateParticipantRoles(participant, 'member', $event.detail.checked)"
-            [disabled]="participant.id === currentUser?.id">
-          </ion-checkbox>
-        </ion-col>
-        <ion-col class="informeCheckbox">
-          <ion-checkbox 
-            [formControl]="participant.isInformedControl"
-            (ionChange)="updateParticipantRoles(participant, 'informed', $event.detail.checked)">
-          </ion-checkbox>
-        </ion-col>
-        <ion-col class="commentaire">
-          <input [formControl]="participant.commentControl" placeholder="Ajouter un commentaire"/>
-        </ion-col>
-        <ion-col>
-          <ion-button  fill="clear" color="danger" (click)="removeParticipant(participant)" [disabled]="participant.id === currentUser?.id">
-            <ion-icon name="trash-outline"></ion-icon>
+    <ion-row *ngFor="let participant of participants" class="participant-row">
+      <ion-col size="3">{{ participant.fullName }}</ion-col>
+      <ion-col size="2">
+        <ion-checkbox 
+          [formControl]="participant.isAdminControl"
+          (ionChange)="updateParticipantRoles(participant, 'supervisor', $event.detail.checked)"> 
+        </ion-checkbox>
+      </ion-col>
+      <ion-col size="2">
+        <ion-checkbox 
+          [formControl]="participant.isMemberControl"
+          (ionChange)="updateParticipantRoles(participant, 'member', $event.detail.checked)">
+        </ion-checkbox>
+      </ion-col>
+      <ion-col size="2">
+        <ion-checkbox 
+          [formControl]="participant.isInformedControl"
+          (ionChange)="updateParticipantRoles(participant, 'informed', $event.detail.checked)">
+        </ion-checkbox>
+      </ion-col>
+      <ion-col size="2">
+        <ion-input [formControl]="participant.commentControl" placeholder="Ajouter un commentaire"></ion-input>
+      </ion-col>
+      <ion-col size="1">
+        <ion-button fill="clear" color="danger" (click)="removeParticipant(participant)" [disabled]="participant.id === currentUser?.id">
+          <ion-icon name="trash-outline"></ion-icon>
           </ion-button>
-        </ion-col>
-      </ion-row>
-    </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
-    <ion-item class="add-participant-button" button (click)="addParticipant()">
-      <ion-icon name="add-outline" slot="start"></ion-icon>
-      Ajouter un membre
-    </ion-item>
-  </div>
+  <ion-item button (click)="addParticipant()">
+    <ion-icon name="add-outline" slot="start"></ion-icon>
+    <ion-label>Ajouter un membre</ion-label>
+  </ion-item>
+</div>                                
   
     <div class="description-section">
       <div class="description-label">Description</div>
@@ -79,13 +74,13 @@
         formControlName="description"
         [modules]="editorModules"
         theme="snow"
-        placeholder="Écris ton commentaire ici...">
+        placeholder="Écris ici...">
       </quill-editor>
     </div>
     
     <ion-item>
       <ion-label class="label" position="stacked">Durée (en minutes)</ion-label>
-      <input formControlName="duration" type="number" min="0"/>
+      <input class="input" formControlName="duration" type="number" min="0"/>
     </ion-item>
 
       
@@ -97,7 +92,7 @@
         formControlName="observation"
         [modules]="editorModules"
         theme="snow"
-        placeholder="Écris ton commentaire ici...">
+        placeholder="Écris ici...">
       </quill-editor>
     </div>
 
@@ -108,7 +103,7 @@
         formControlName="causes"
         [modules]="editorModules"
         theme="snow"
-        placeholder="Écris ton commentaire ici...">
+        placeholder="Écris ici...">
       </quill-editor>
     </div>
 
@@ -119,7 +114,7 @@
         formControlName="consequences"
         [modules]="editorModules"
         theme="snow"
-        placeholder="Écris ton commentaire ici...">
+        placeholder="Écris    ici...">
       </quill-editor>
     </div>
 
