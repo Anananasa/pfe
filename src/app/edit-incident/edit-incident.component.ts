@@ -246,6 +246,10 @@ export class EditIncidentComponent implements OnInit {
         {
           text: 'Annuler',
           role: 'cancel'
+        },
+        {
+          text: 'Submit',
+          role: 'submit'
         }
       ]
     });
