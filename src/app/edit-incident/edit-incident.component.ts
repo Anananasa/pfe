@@ -92,7 +92,7 @@ export class EditIncidentComponent implements OnInit {
       state: [0]
     });
   }
-  
+
   ngOnInit() {
     this.loadEmployees();
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -108,9 +108,9 @@ export class EditIncidentComponent implements OnInit {
     tempDiv.innerHTML = html;
     return tempDiv.textContent || '';
   }
-  
 
-  
+
+
 
   loadEmployees() {
     this.authService.getEmployees().subscribe({
@@ -154,12 +154,12 @@ export class EditIncidentComponent implements OnInit {
     this.apiService.getIncidentTeams(this.incidentId!).subscribe({
       next: (teams) => {
         console.log('Équipes chargées depuis l\'API:', teams);
-        
+
         if (teams && teams.length > 0) {
           this.participants = teams
             .map((team: any) => {
               console.log('Équipe en cours de traitement:', team);
-              
+
               // Utiliser les informations de l'équipe si l'employé n'est pas trouvé
               const employee = this.availableEmployees.find(e => e.id === team.employeeId);
               if (!employee) {
@@ -182,7 +182,7 @@ export class EditIncidentComponent implements OnInit {
                   isMember: !team.roleIsSupervisor && !team.roleIsInformed
                 } as GroupParticipantForm;
               }
-              
+
               return {
                 id: employee.id,
                 fullName: employee.fullName,
@@ -201,7 +201,7 @@ export class EditIncidentComponent implements OnInit {
               } as GroupParticipantForm;
             })
             .filter((p): p is GroupParticipantForm => p !== null);
-          
+
           console.log('Participants chargés:', this.participants);
         } else {
           console.log('Aucune équipe trouvée pour cet incident');
@@ -214,54 +214,95 @@ export class EditIncidentComponent implements OnInit {
   }
 
   async addParticipant() {
-    const buttons = this.availableEmployees
-      .filter(emp => !this.participants.some(p => p.id === emp.id))
-      .map(emp => ({
-        text: emp.fullName,
-        handler: () => {
-          this.participants.push({
-            ...emp,
-            isAdmin: false,
-            isApprover: false,
-            isEvaluator: false,
-            isInformed: false,
-            comment: '',
-            commentControl: new FormControl(''),
-            isAdminControl: new FormControl(false),
-            isMemberControl: new FormControl(false),
-            isInformedControl: new FormControl(false),
-            isMember: false
-          } as GroupParticipantForm);
-        }
-      }));
+    const availableEmployees = this.availableEmployees
+    .filter(emp => !this.participants.some(p => p.id === emp.id));
 
-    if (buttons.length === 0) {
-      return;
+    if (availableEmployees.length === 0) {
+      // Show message if no employees are available to add
+      const noEmployeesAction = await this.actionSheetController.create({
+        header: 'Aucun participant disponible',
+        buttons: [{
+          text: 'OK',
+          role: 'cancel'
+        }]
+      });
+
+      return await noEmployeesAction.present();
     }
+
+    const buttons = availableEmployees.map(emp => ({
+      text: emp.fullName,
+      handler: () => {
+        // Create the new participant with proper form controls
+        const newParticipant = {
+          id: emp.id,
+          fullName: emp.fullName,
+          photo: emp.photo,
+          serialNumber: emp.serialNumber,
+          isAdmin: false,
+          isInformed: false,
+          comment: '',
+          commentControl: new FormControl(''),
+          isAdminControl: new FormControl(false),
+          isMemberControl: new FormControl(true),
+          isInformedControl: new FormControl(false),
+          isMember: true
+        } as GroupParticipantForm;
+
+        this.participants.push(newParticipant);
+
+        this.updateIncidentTeams();
+
+        return true;
+      }
+    }));
+
+    buttons.push({
+      text: 'Annuler',
+      role: 'cancel'
+    });
 
     const actionSheet = await this.actionSheetController.create({
       header: 'Sélectionner un participant',
-      buttons: [
-        ...buttons,
-        {
-          text: 'Annuler',
-          role: 'cancel'
-        },
-        {
-          text: 'Submit',
-          role: 'submit'
-        }
-      ]
+      buttons: buttons
     });
 
     await actionSheet.present();
   }
 
+  private updateIncidentTeams() {
+    // Create DTO from current participants
+    const incidentTeams: IncidentTeamDto[] = this.participants.map(p => ({
+      employeeId: p.id,
+      roleIsSupervisor: p.isAdminControl.value,
+      roleIsMember: p.isMemberControl.value,
+      roleIsInformed: p.isInformedControl.value,
+      roleComments: p.commentControl.value || ''
+    }));
+
+    // Update the incident
+    const formData = {
+      ...this.currentIncident,
+      incidentTeams: incidentTeams
+    };
+
+    this.apiService.updateIncident(this.incidentId!, formData).subscribe({
+      next: (response) => {
+        console.log('Participant added successfully:', response);
+        // Force UI update
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error updating incident teams:', error);
+      }
+    });
+  }
+
   updateParticipantRoles(participant: GroupParticipantForm, role: string, value: boolean) {
     const index = this.participants.findIndex(p => p.id === participant.id);
-    
+
     if (index !== -1) {
-      // Réinitialiser tous les rôles avant d'appliquer le nouveau
+      // Reset all roles before applying the new one
       this.participants[index].isAdmin = false;
       this.participants[index].isAdminControl.setValue(false);
       this.participants[index].isMember = false;
@@ -269,7 +310,6 @@ export class EditIncidentComponent implements OnInit {
       this.participants[index].isInformed = false;
       this.participants[index].isInformedControl.setValue(false);
 
-      // Appliquer le nouveau rôle
       switch(role) {
         case 'supervisor':
           this.participants[index].isAdmin = value;
@@ -285,75 +325,25 @@ export class EditIncidentComponent implements OnInit {
           break;
       }
 
-      // Mettre à jour l'incident avec la nouvelle liste d'équipes
-      const incidentTeams: IncidentTeamDto[] = this.participants.map(p => {
-        const teamDto = {
-          employeeId: p.id,
-          roleIsSupervisor: p.isAdmin,
-          roleIsMember: p.isMember,
-          roleIsInformed: p.isInformed || false,
-          roleComments: p.commentControl.value || ''
-        };
-        return teamDto;
-      });
-
-      const formData = {
-        ...this.currentIncident,
-        incidentTeams: incidentTeams
-      };
-
-      this.apiService.updateIncident(this.incidentId!, formData).subscribe({
-        next: (response) => {
-          console.log('Réponse de l\'API après mise à jour:', response);
-          // Recharger les équipes après la mise à jour
-          this.loadIncidentTeams();
-          this.cdr.detectChanges();
-        },
-        error: (error) => {
-          console.error('Erreur lors de la mise à jour des rôles:', error);
-        }
-      });
+      this.updateIncidentTeams();
     }
   }
 
   async removeParticipant(participant: GroupParticipantForm) {
-    console.log('removeParticipant appelé avec:', participant);
+    console.log('removeParticipant called with:', participant);
     const currentUserId = localStorage.getItem('CurrentEmployeeId');
+
+    // No allow removing the current user
     if (participant.id === currentUserId) {
       return;
     }
-    
-    console.log('Participants avant suppression:', this.participants);
+
+    // Remove the participant from the array
     this.participants = this.participants.filter(p => p.id !== participant.id);
-    console.log('Participants après suppression:', this.participants);
-    
-    // Mettre à jour l'incident avec la nouvelle liste d'équipes
-    const incidentTeams: IncidentTeamDto[] = this.participants.map(p => ({
-      employeeId: p.id,
-      roleIsSupervisor: p.isAdminControl.value,
-      roleIsMember: !p.isAdminControl.value && !p.isInformedControl.value,
-      roleIsInformed: p.isInformedControl.value,
-      roleComments: p.commentControl.value || ''
-    }));
+    console.log('Participants after removal:', this.participants);
 
-    console.log('Nouvelle liste d\'équipes après suppression:', incidentTeams);
-
-    const formData = {
-      ...this.currentIncident,
-      incidentTeams: incidentTeams
-    };
-
-    console.log('Données complètes à envoyer après suppression:', formData);
-
-    this.apiService.updateIncident(this.incidentId!, formData).subscribe({
-      next: (response) => {
-        console.log('Réponse de l\'API après suppression:', response);
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Erreur lors de la suppression du participant:', error);
-      }
-    });
+    // Update the incident with the new team list
+    this.updateIncidentTeams();
   }
 
   private cleanHtmlContent(html: string): string {
@@ -368,8 +358,8 @@ export class EditIncidentComponent implements OnInit {
     const day = String(d.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`; // Correct and safe for <input type="date">
   }
-  
-  
+
+
   async onSubmit() {
     if (this.incidentForm.valid && this.incidentId) {
       this.isSubmitting = true;
