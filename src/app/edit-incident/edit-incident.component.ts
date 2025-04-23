@@ -257,9 +257,12 @@ export class EditIncidentComponent implements OnInit {
       }
     }));
 
+    // add the cancel button
     buttons.push({
       text: 'Annuler',
-      role: 'cancel'
+      handler: () => {
+        return true
+      }
     });
 
     const actionSheet = await this.actionSheetController.create({
