@@ -20,13 +20,13 @@
 
     <ion-item *ngFor="let participant of participants">
       <ion-avatar slot="start">
-        <img [src]="getuserPhotoUrl(participant)" alt="avatar">
+        <img [src]="getuserPhotoUrl(participant)" alt="avatar" />
       </ion-avatar>
       <ion-label>
         <h2>{{ participant.fullName }}</h2>
         <p>{{ participant.isAdmin ? 'Administrateur' : 'Membre' }}</p>
       </ion-label>
-      <ion-buttons slot="end" *ngIf="">
+      <ion-buttons slot="end">
         <ion-button (click)="toggleRole(participant)">
           <ion-icon [name]="participant.isAdmin ? 'shield' : 'person'"></ion-icon>
         </ion-button>
@@ -46,12 +46,10 @@
 <ion-footer>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button (click)="cancel()">
-        Annuler
-      </ion-button>
+      <ion-button (click)="cancel()">Annuler</ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button (click)="createGroup()" [disabled]="!groupTitle ">
+      <ion-button (click)="createGroupFirebase()" [disabled]="!groupTitle || participants.length === 0">
         Créer
       </ion-button>
     </ion-buttons>

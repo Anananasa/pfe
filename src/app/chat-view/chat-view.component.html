@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/incident-list"></ion-back-button>
     </ion-buttons>
-    <ion-title>{{ groupTitle || 'Chat' }}</ion-title>
+    <ion-title>{{ groupId || 'Chat' }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -12,12 +12,12 @@
     <ion-item *ngFor="let message of messages" 
               [class.user-message]="message.senderId === currentUserId">
       <ion-avatar slot="start" *ngIf="message.senderId !== currentUserId">
-        <img [src]="message.senderAvatar || 'assets/default-avatar.png'" alt="avatar">
+        <img [src]="message.senderAvatar || 'https://cdn.discordapp.com/embed/avatars/0.png'" alt="avatar">
       </ion-avatar>
       <ion-label class="ion-text-wrap">
-        <h3 *ngIf="message.senderId !== currentUserId">{{ message.senderName }}</h3>
-        <p>{{ message.content }}</p>
-        <p class="timestamp">{{ message.timestamp | date:'short' }}</p>
+        <h3 *ngIf="message.senderId !== currentUserId">{{ message.senderId }}</h3>
+        <p class="message-content">{{ message.text}}</p>
+        <p class="timestamp">{{ message.sentAt | date:'short' }}</p>
       </ion-label>
     </ion-item>
   </ion-list>

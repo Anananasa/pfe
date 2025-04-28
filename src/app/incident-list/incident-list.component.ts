@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, ToastController, AlertController, ActionSheetController } from '@ionic/angular';
-import { ApiService } from '../services/api.service'; 
+import { ApiService } from '../services/api.service';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 import { NavHeaderComponent } from '../nav-header/nav-header.component';
@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { IncidentStateService } from '../services/incident-state.service';
 import { Subscription } from 'rxjs';
 import { ChatGroupService } from '../services/chat-group.service';
+import { GroupService } from '../services/group.service';
 
 @Component({
   selector: 'app-incident-list',
@@ -32,14 +33,15 @@ export class IncidentListComponent implements OnInit, OnDestroy {
     status: ''
   };
   constructor(
-    private authService: AuthService, 
+    private authService: AuthService,
     private apiService: ApiService,
     private router: Router,
     private toastController: ToastController,
     private alertController: AlertController,
     private actionSheetController: ActionSheetController,
     private incidentState: IncidentStateService,
-    private chatGroupService: ChatGroupService
+    private chatGroupService: ChatGroupService,
+    private GroupService: GroupService
   ) {
     this.refreshSubscription = this.incidentState.refreshList$.subscribe(() => {
       this.loadIncidents();
@@ -74,7 +76,7 @@ export class IncidentListComponent implements OnInit, OnDestroy {
       default:
         return 'status-default';
     }
-  } 
+  }
 
   loadIncidents() {
     console.log('Loading incidents...');
@@ -106,7 +108,7 @@ export class IncidentListComponent implements OnInit, OnDestroy {
     }
 
     const searchLower = this.searchTerm.toLowerCase();
-    this.filteredIncidents = this.incidents.filter(incident => 
+    this.filteredIncidents = this.incidents.filter(incident =>
       incident.code?.toLowerCase().includes(searchLower) ||
       incident.designation?.toLowerCase().includes(searchLower) ||
       incident.employeeFullName?.toLowerCase().includes(searchLower)
@@ -117,11 +119,11 @@ export class IncidentListComponent implements OnInit, OnDestroy {
       const dateMatch = !this.filter.date || incident.incidentDate?.startsWith(this.filter.date);
       const declMatch = !this.filter.declarationDate || incident.declarationDate?.startsWith(this.filter.declarationDate);
       const statusMatch = !this.filter.status || incident.stateStr === this.filter.status;
-  
+
       return dateMatch && declMatch && statusMatch;
     });
   }
-  
+
   resetFilter() {
     this.filter = {
       date: null,
@@ -174,12 +176,12 @@ export class IncidentListComponent implements OnInit, OnDestroy {
       this.presentToast('Seuls les incidents Rejeté(es) ou Validé peuvent être supprimés');
       return;
     }
-  
+
     const incidentData = {
       ...incident,
       crudFrom: 3
     };
-  
+
     this.apiService.deleteIncident(incident.id).subscribe({
       next: () => {
         this.incidentState.triggerRefresh();
@@ -191,8 +193,8 @@ export class IncidentListComponent implements OnInit, OnDestroy {
       }
     });
   }
-  
-  
+
+
 
   async showToast(message: string, color: string = 'primary') {
     const toast = await this.toastController.create({
@@ -206,15 +208,9 @@ export class IncidentListComponent implements OnInit, OnDestroy {
 
   async showMessageOptions(incident: any) {
     const actionSheet = await this.actionSheetController.create({
-      header: 'Options de messages',
+      header: 'Messages',
       buttons: [
-        {
-          text: 'Accéder au chat',
-          icon: 'chatbubbles-outline',
-          handler: () => {
-            this.openChat(incident);
-          }
-        },
+
         {
           text: 'Voir les groupes existants',
           icon: 'people-outline',
@@ -249,8 +245,8 @@ export class IncidentListComponent implements OnInit, OnDestroy {
             next: (groups) => {
               if (groups && groups.length > 0) {
                 // Rediriger vers le chat avec l'ID du groupe
-                this.router.navigate(['/chat'], { 
-                  queryParams: { 
+                this.router.navigate(['/chat'], {
+                  queryParams: {
                     incidentId: incident.id,
                     groupId: groups[0].id
                   }
@@ -276,8 +272,8 @@ export class IncidentListComponent implements OnInit, OnDestroy {
   }
 
   async createNewGroup(incident: any) {
-    this.router.navigate(['/group-creation'], { 
-      queryParams: { 
+    this.router.navigate(['/group-creation'], {
+      queryParams: {
         incidentId: incident.id,
         incidentName: incident.designation
       }
@@ -286,20 +282,14 @@ export class IncidentListComponent implements OnInit, OnDestroy {
 
   async viewExistingChats(incident: any) {
     // Récupérer les groupes existants pour cet incident
-    this.chatGroupService.getExistingGroupsForIncident(incident.id).subscribe({
-      next: (groups) => {
+    this.GroupService.getUserGroups(this.authService.getCurrentUserId() || 'null', incident.id).then((groups) => {
         if (groups.length > 0) {
           // Créer une liste des groupes pour l'action sheet
           const buttons: any[] = groups.map(group => ({
-            text: group.designation || 'Groupe sans nom',
+            text: (group as any).name || 'Groupe sans nom',
             handler: () => {
               // Naviguer vers le chat avec l'ID du groupe
-              this.router.navigate(['/chat'], { 
-                queryParams: { 
-                  incidentId: incident.id,
-                  groupId: group.id
-                }
-              });
+              this.router.navigate(['/chat', group.id],);
             }
           }));
 
@@ -321,12 +311,7 @@ export class IncidentListComponent implements OnInit, OnDestroy {
           this.showToast('Aucun groupe existant pour cet incident', 'warning');
         }
       },
-      error: (error) => {
-        console.error('Erreur lors de la récupération des groupes:', error);
-        this.showToast('Erreur lors de la récupération des groupes', 'danger');
-      }
-    });
-  }
+  )}
   navigateToAddIncident() {
     this.router.navigate(['/add-incident']);
   }
@@ -393,4 +378,4 @@ showMessageOptionss(incident: any) {
   console.log('Chat button clicked for incident:', incident);
   // Later: Open chatbot popover/modal here
 }
-} 
+}

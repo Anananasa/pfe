@@ -20,6 +20,9 @@ export interface Employee {
 }
 
 export interface users {
+  userName: string | null;
+  serviceDesignation: string;
+  userId: string;
   UserId: string;
   UserName: string;
   fullName: string;
@@ -38,6 +41,10 @@ export class AuthService {
   
   constructor(private http: HttpClient, private router: Router) {
     
+  }
+
+  getCurrentUserId(): string | null {
+    return localStorage.getItem('CurrentUserId');
   }
 
   getCompanies() {
@@ -59,7 +66,7 @@ export class AuthService {
 
  
 
-  getuser(): Observable<users[]> {
+  getUsers(): Observable<users[]> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`,
