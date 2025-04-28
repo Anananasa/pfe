@@ -47,6 +47,7 @@
     "firebase": "^11.6.1",
     "ionicons": "^7.0.0",
     "ngx-quill": "^27.0.2",
+    "parchment": "^3.0.0",
     "quill": "^2.0.3",
     "rxjs": "~7.8.0",
     "socket.io-client": "^4.8.1",
