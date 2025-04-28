@@ -9,6 +9,7 @@
 
 <ion-content class="ion-padding">
   <ion-list>
+    <h2 *ngIf="messages.length === 0" class="no-messages">Aucun message</h2>
     <ion-item *ngFor="let message of messages" 
               [class.user-message]="message.senderId === currentUserId"
               [class.other-message]="message.senderId !== currentUserId">

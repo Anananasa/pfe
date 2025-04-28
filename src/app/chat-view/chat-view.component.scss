@@ -79,3 +79,10 @@ ion-footer {
 ion-item {
   --inner-border-width: 0px;
 }
+
+.no-messages {
+  text-align: center;
+  font-size: 1.2em;
+  color: var(--ion-color-medium);
+  margin-top: 20px;
+}
