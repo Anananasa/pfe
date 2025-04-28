@@ -71,13 +71,14 @@ export class GroupCreationComponent implements OnInit {
     try {
       // 1. Create the group
       const adminId = this.authService.getCurrentUserId(); 
-      this.groupId = await this.groupService.createGroup(this.groupTitle, adminId!, this.incidentId);
+      const userIds = this.participants.map(p => p.userId);
+      this.groupId = await this.groupService.createGroup(this.groupTitle, adminId!, this.incidentId, this.participants);
       console.log('Group created with ID:', this.groupId);
   
       // 2. Then add participants
-      const userIds = this.participants.map(p => p.userId);
+      
       console.log('User IDs to add:', this.participants);
-      await this.groupService.addUsers(this.groupId, this.incidentId, userIds);
+      await this.groupService.addUsers(this.groupId, this.incidentId, userIds, this.participants);
   
       console.log('All users added to group!');
       await this.showToast('Groupe créé avec succès');
@@ -146,8 +147,9 @@ export class GroupCreationComponent implements OnInit {
 
   async createGroup() {
     try {
-      const adminId = this.authService.getCurrentUserId() || 'null'; // Assuming this method exists to get the current user's ID
-      const groupId = await this.groupService.createGroup(this.groupTitle, adminId, this.incidentId);
+      const adminId = this.authService.getCurrentUserId() || 'null';
+      const userIds = this.participants.map(p => p.userId);
+      const groupId = await this.groupService.createGroup(this.groupTitle, adminId, this.incidentId, this.participants);
         await this.showToast('Groupe créé avec succès');
       
     } catch (error) {
