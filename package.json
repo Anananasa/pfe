@@ -42,6 +42,7 @@
     "@ionic/pwa-elements": "^3.3.0",
     "@tinymce/tinymce-angular": "^8.0.1",
     "@webspellchecker/wproofreader-ckeditor5": "^3.1.2",
+    "chart.js": "^4.4.9",
     "cordova-plugin-media": "^7.0.0",
     "devextreme-angular": "^24.2.6",
     "firebase": "^11.6.1",

@@ -315,32 +315,114 @@ export class IncidentListComponent implements OnInit, OnDestroy {
   navigateToAddIncident() {
     this.router.navigate(['/add-incident']);
   }
+  
+  showChatbot = false;
+  chatInput: string = '';
+  chatMessages: { role: string, content: string }[] = [];
+  isThinking = false;
   toggleChatbot() {
     this.showChatbot = !this.showChatbot;
   }
-showChatbot = false;
-chatInput: string = '';
-chatMessages: { role: string, content: string }[] = [];
-isThinking = false;
+  
+  sendChatMessage() {
+    const input = this.chatInput.trim();
+    if (!input) return;	
+  
+    const userMessage = { role: 'user', content: input };
+    this.chatMessages.push(userMessage);
+    this.chatInput = '';
+  
+    const thinkingMessage = { role: 'assistant', content: "L'IA réfléchit..." };
+    this.chatMessages.push(thinkingMessage);
+  
+    // Convert incidents list to a readable format
+    const incidentContext = this.incidents.map((inc, i) => {
+      return `Incident ${i + 1}:
+  - Code: ${inc.code}
+  - Designation: ${inc.designation}
+  - Employé: ${inc.employeeFullName}
+  - cause: ${inc.cause}
+  - consequence: ${inc.consequence}
+  - constat: ${inc.observation}
+  - Date d'incident: ${inc.incidentDate}
+  - Date de déclaration: ${inc.declarationDate}
+  - Statut: ${inc.stateStr}\n`;
+    }).join('\n');
+  
+    const body = {
+      model: 'gpt-4',
+      messages: [
+        {
+          role: 'system',
+          content:
+            `Tu es un assistant virtuel qui aide à comprendre et gérer les incidents des certains situations appartient a  lentreprise TIM  TIM est une entreprise tunisienne qui offre divers services professionnels Ceux-ci comprennent Services a Divers services probablement dans le domaine du management ou de la gestion etConseil  Aide aux entreprises pour améliorer leurs processus ou résoudre des problèmes spécifiques Accompagnement qui Soutien à la mise en œuvre de projets ou de nouvelles stratégies Audit  Évaluation de systèmes ou de processus pour vérifier leur efficacité ou conformité Formation Séminaires ou cours pour améliorer les compétences des employés ou des entreprises Lentreprise semble se spécialiser dans les solutions informatiques dédiées à différents domaines comme la Qualité la Santé la Sécurité et l'Environnement (QHSE) la production la maintenance etc
+            . Voici la liste actuelle des incidents:\n\n${incidentContext}\n\nTu peux répondre à des questions comme "Quels incidents sont validés ?", "Combien d'incidents ont été déclarés par [Nom] ?", ou "Donne-moi les détails de l'incident [code]".`
+        },
+        ...this.chatMessages.filter(m => m.role !== 'assistant' || m.content !== "L'IA réfléchit...")
+      ],
+      temperature: 0.7
+    };
+  
+    fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer my_key'
+      },
+      body: JSON.stringify(body)
+    })
+      .then(res => res.json())
+      .then(data => {
+        const reply = data.choices[0].message;
+  
+        const index = this.chatMessages.indexOf(thinkingMessage);
+        if (index !== -1) {
+          this.chatMessages[index] = reply;
+        } else {
+          this.chatMessages.push(reply);
+        }
+      })
+      .catch(err => {
+        console.error('Erreur API ChatGPT:', err);
+        const index = this.chatMessages.indexOf(thinkingMessage);
+        if (index !== -1) {
+          this.chatMessages[index] = { role: 'assistant', content: "Désolé, je n'ai pas pu répondre. Réessayez plus tard." };
+        }
+      });
+  }
+  
+  showMessageOptionss(incident: any) {
+    console.log('Chat button clicked for incident:', incident);
+    // Later: Open chatbot popover/modal here
+  }
+  //***************************************************************** */
 
+showRisquePopup(incident: any) {
+  if (incident.risques) {
+    // If already displayed, just toggle it off
+    incident.risques = null;
+    return;
+  }
+  incident.risques = "L'IA réfléchit...";
 
-sendChatMessage() {
-  const input = this.chatInput.trim();
-  if (!input) return;
+  const prompt = `Voici les détails d'un incident :
+- Désignation : ${incident.designation}
+- Description : ${incident.description}
+- Cause : ${incident.cause}
 
-  const userMessage = { role: 'user', content: input };
-  this.chatMessages.push(userMessage);
-  this.chatInput = '';
-
-  // Step 1: Add temporary "thinking" message
-  const thinkingMessage = { role: 'assistant', content: "L'IA réfléchit..." };
-  this.chatMessages.push(thinkingMessage);
+Quels sont les risques potentiels liés à cet incident ? Donne une réponse claire et structurée.`;
 
   const body = {
     model: 'gpt-4',
     messages: [
-      { role: 'system', content: 'Tu es un assistant virtuel qui aide à comprendre et gérer les incidents des certains situations' },
-      ...this.chatMessages.filter(m => m.role !== 'assistant' || m.content !== "L'IA réfléchit...") // remove fake message from context
+      {
+        role: 'system',
+        content: `Tu es un assistant expert en gestion des risques industriels. Tu dois identifier les risques potentiels à partir des informations fournies sur un incident.reflichit vitement et donner les information dune maniere joli(ne depasser pas 5 ligne et retour ala ligne apres le point et presenter les donnees dune joli maniere )`
+      },
+      {
+        role: 'user',
+        content: prompt
+      }
     ],
     temperature: 0.7
   };
@@ -349,33 +431,21 @@ sendChatMessage() {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer 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' // Make sure the token is valid
+      'Authorization': 'Bearer my_key' // 🔑 Remplace avec ta clé
     },
     body: JSON.stringify(body)
   })
     .then(res => res.json())
     .then(data => {
-      const reply = data.choices[0].message;
-
-      // Step 2: Replace "thinking" message with real response
-      const index = this.chatMessages.indexOf(thinkingMessage);
-      if (index !== -1) {
-        this.chatMessages[index] = reply;
-      } else {
-        this.chatMessages.push(reply);
-      }
+      const reply = data.choices[0].message.content;
+      incident.risques = reply;
     })
     .catch(err => {
       console.error('Erreur API ChatGPT:', err);
-      const index = this.chatMessages.indexOf(thinkingMessage);
-      if (index !== -1) {
-        this.chatMessages[index] = { role: 'assistant', content: "Désolé, je n'ai pas pu répondre. Réessayez plus tard." };
-      }
+      incident.risques = "Désolé, je n'ai pas pu analyser les risques.";
     });
 }
 
-showMessageOptionss(incident: any) {
-  console.log('Chat button clicked for incident:', incident);
-  // Later: Open chatbot popover/modal here
-}
+
+
 }

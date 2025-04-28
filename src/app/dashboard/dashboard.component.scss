@@ -1,0 +1,357 @@
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  text-align: center;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  ion-card-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+  }
+
+  ion-card-header {
+    padding-bottom: 8px;
+  }
+
+  .stat-value {
+    font-size: 2em;
+    font-weight: bold;
+    color: var(--ion-color-primary);
+  }
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.dashboard-card {
+  height: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  ion-card-header {
+    padding: 1rem;
+  }
+
+  ion-card-content {
+    padding: 1rem;
+  }
+
+  &.full-width {
+    grid-column: 1 / -1;
+  }
+}
+
+.chart-container {
+  height: 300px;
+  width: 100%;
+}
+
+ion-list {
+  background: transparent;
+}
+
+ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  margin-bottom: 0.5rem;
+}
+
+ion-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+}
+
+.team-performance {
+  .team-item {
+    margin-bottom: 16px;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--ion-color-light);
+    
+    .team-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      
+      h3 {
+        margin: 0;
+        font-size: 1.1em;
+      }
+    }
+    
+    .team-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      font-size: 0.9em;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+.status-distribution {
+  .status-item {
+    margin-bottom: 12px;
+    
+    .status-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    
+    ion-progress-bar {
+      height: 8px;
+      border-radius: 4px;
+    }
+  }
+}
+
+.team-distribution {
+  .team-item {
+    margin-bottom: 12px;
+    
+    .team-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      
+      h3 {
+        margin: 0;
+        font-size: 1em;
+      }
+    }
+    
+    ion-progress-bar {
+      height: 8px;
+      border-radius: 4px;
+    }
+  }
+}
+
+.monthly-trends {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 8px 0;
+  
+  .month-item {
+    min-width: 120px;
+    text-align: center;
+    
+    h3 {
+      margin: 0 0 8px 0;
+      font-size: 0.9em;
+    }
+    
+    .trend-bars {
+      display: flex;
+      align-items: flex-end;
+      height: 150px;
+      gap: 4px;
+      
+      .trend-bar {
+        flex: 1;
+        min-width: 20px;
+        border-radius: 4px 4px 0 0;
+        position: relative;
+        transition: height 0.3s ease;
+        
+        .trend-value {
+          position: absolute;
+          bottom: -20px;
+          left: 50%;
+          transform: translateX(-50%);
+          font-size: 0.8em;
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+}
+
+.resolution-time {
+  text-align: center;
+  padding: 16px;
+  
+  .time-value {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: var(--ion-color-primary);
+    margin-bottom: 8px;
+  }
+  
+  .time-label {
+    color: var(--ion-color-medium);
+    font-size: 0.9em;
+  }
+}
+
+.status-pie-chart {
+  height: 200px;
+  margin-bottom: 16px;
+}
+
+.status-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    
+    span {
+      font-size: 0.9em;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+.validation-rate {
+  text-align: center;
+  margin-top: 16px;
+  
+  h3 {
+    color: var(--ion-color-medium);
+    font-size: 1em;
+    margin-bottom: 8px;
+  }
+  
+  .rate-value {
+    font-size: 2em;
+    font-weight: bold;
+    color: var(--ion-color-success);
+  }
+}
+
+.employee-chart {
+  height: 200px;
+  margin-bottom: 16px;
+}
+
+.top-employees {
+  .employee-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid var(--ion-color-light);
+    
+    .employee-name {
+      font-weight: 500;
+    }
+    
+    .employee-count {
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+.time-chart {
+  height: 300px;
+  margin-bottom: 24px;
+}
+
+.day-distribution {
+  .day-grid {
+    display: grid;
+    gap: 12px;
+    
+    .day-item {
+      display: grid;
+      grid-template-columns: 100px 1fr 60px;
+      gap: 12px;
+      align-items: center;
+      
+      .day-name {
+        font-weight: 500;
+      }
+      
+      .day-count {
+        text-align: right;
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+}
+
+.causes-chart, .consequences-chart {
+  height: 200px;
+  margin-bottom: 24px;
+  
+  h3 {
+    color: var(--ion-color-medium);
+    font-size: 1em;
+    margin-bottom: 16px;
+  }
+}
+
+.causes-distribution, .consequences-distribution {
+  margin-bottom: 24px;
+  
+  h3 {
+    color: var(--ion-color-medium);
+    font-size: 1em;
+    margin-bottom: 16px;
+  }
+  
+  .cause-item, .consequence-item {
+    margin-bottom: 12px;
+    
+    .cause-header, .consequence-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      
+      .cause-name, .consequence-name {
+        font-weight: 500;
+      }
+      
+      .cause-count, .consequence-count {
+        color: var(--ion-color-medium);
+        font-size: 0.9em;
+      }
+    }
+    
+    ion-progress-bar {
+      height: 8px;
+      border-radius: 4px;
+    }
+  }
+}
+
+// Styles responsifs
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+} 

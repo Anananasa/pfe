@@ -1,0 +1,182 @@
+<app-nav-header title="Tableau de Bord" backUrl="/"></app-nav-header>
+
+<ion-content class="ion-padding">
+  <!-- Statistiques -->
+  <div class="stats-grid">
+    <ion-card *ngFor="let stat of stats" class="stat-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon [name]="stat.icon" [color]="stat.color"></ion-icon>
+          {{stat.title}}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="stat-value">{{stat.value}}</div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Graphiques et Tableaux -->
+  <div class="dashboard-grid">
+    <!-- Incidents Récents -->
+    <ion-card class="dashboard-card">
+      <ion-card-header>
+        <ion-card-title>Incidents Récents</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <ion-item *ngFor="let incident of recentIncidents">
+            <ion-label>
+              <h2>{{incident.designation}}</h2>
+              <p>{{incident.date | date}}</p>
+              <p>Équipe: {{incident.team}}</p>
+            </ion-label>
+            <ion-badge [color]="getStatusColor(incident.status)" slot="end">
+              {{incident.status}}
+            </ion-badge>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Performance de l'Équipe -->
+    <ion-card class="dashboard-card">
+      <ion-card-header>
+        <ion-card-title>Performance de l'Équipe</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="team-performance">
+          <div *ngFor="let team of topPerformingTeams" class="team-item">
+            <div class="team-header">
+              <h3>{{team.name}}</h3>
+              <ion-badge color="success">{{team.successRate | number:'1.0-0'}}%</ion-badge>
+            </div>
+            <div class="team-stats">
+              <div>Résolus: {{team.incidentsResolved}}</div>
+              <div>Total: {{team.totalIncidents}}</div>
+              <div>Temps moyen: {{team.averageResolutionTime | number:'1.0-0'}} min</div>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+     <!-- Statistiques par Statut -->
+  <ion-card class="dashboard-card">
+    <ion-card-header>
+      <ion-card-title>Statistiques par Statut</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="status-pie-chart">
+        <canvas #statusPieChart></canvas>
+      </div>
+      <div class="status-legend">
+        <div *ngFor="let item of statusDistribution" class="legend-item">
+          <div class="legend-color" [style.background-color]="getStatusColor(item.status)"></div>
+          <span>{{item.status}} ({{item.count}})</span>
+        </div>
+      </div>
+      <div class="validation-rate">
+        <h3>Taux de validation</h3>
+        <div class="rate-value">{{getValidationRate() | number:'1.0-0'}}%</div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+    <!-- Distribution des Équipes -->
+    <ion-card class="dashboard-card">
+      <ion-card-header>
+        <ion-card-title>Distribution des Équipes</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="team-distribution">
+          <div *ngFor="let item of teamDistribution" class="team-item">
+            <div class="team-header">
+              <h3>{{item.team}}</h3>
+              <span>{{item.count}} ({{item.percentage | number:'1.0-0'}}%)</span>
+            </div>
+            <ion-progress-bar [value]="item.percentage / 100" color="primary"></ion-progress-bar>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+    <ion-card class="dashboard-card">
+      <ion-card-header>
+        <ion-card-title>Temps de Résolution Moyen</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="resolution-time">
+          <div class="time-value">{{averageResolutionTime | number:'1.0-0'}} min</div>
+          <div class="time-label">pour les incidents validés</div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+ 
+
+  <!-- Statistiques sur les Causes et Conséquences -->
+  <ion-card class="dashboard-card">
+    <ion-card-header>
+      <ion-card-title>Causes et Conséquences</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="causes-distribution">
+        <h3>Top 5 Causes</h3>
+        <div *ngFor="let item of topCauses" class="cause-item">
+          <div class="cause-header">
+            <span class="cause-name">{{item.cause}}</span>
+            <span class="cause-count">{{item.count}} incidents</span>
+          </div>
+          <ion-progress-bar 
+            [value]="item.count / getMaxCauseCount()" 
+            color="danger">
+          </ion-progress-bar>
+        </div>
+      </div>
+
+      <div class="consequences-distribution">
+        <h3>Top 5 Conséquences</h3>
+        <div *ngFor="let item of topConsequences" class="consequence-item">
+          <div class="consequence-header">
+            <span class="consequence-name">{{item.cause}}</span>
+            <span class="consequence-count">{{item.count}} incidents</span>
+          </div>
+          <ion-progress-bar 
+            [value]="item.count / getMaxConsequenceCount()" 
+            color="tertiary">
+          </ion-progress-bar>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+
+
+  <!-- Statistiques Temporelles -->
+  <ion-card class="dashboard-card full-width">
+    <ion-card-header>
+      <ion-card-title>Statistiques Temporelles</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="time-chart">
+        <canvas #timeChart></canvas>
+      </div>
+      <div class="day-distribution">
+        <h3>Distribution par Jour</h3>
+        <div class="day-grid">
+          <div *ngFor="let day of dayDistribution" class="day-item">
+            <span class="day-name">{{day.name}}</span>
+            <ion-progress-bar [value]="day.count / getMaxDayCount()" color="primary"></ion-progress-bar>
+            <span class="day-count">{{day.count}}</span>
+          </div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+ 
+
+
+
+  </div>
+</ion-content> 

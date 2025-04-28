@@ -289,3 +289,25 @@ ion-icon {
     margin-bottom: 10px;
   }
 }
+/* Bloc d'analyse IA des risques */
+.incident-risques {
+  background-color: #fff3cd; /* fond jaune pâle */
+  border-left: 4px solid #ffc107; /* barre à gauche jaune */
+  padding: 12px 16px;
+  margin-top: 10px;
+  border-radius: 8px;
+  color: #856404;
+  font-size: 14px;
+  font-style: italic;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.incident-risques-title {
+  font-weight: bold;
+  font-style: normal;
+  color: #664d03;
+  margin-bottom: 4px;
+}
+  

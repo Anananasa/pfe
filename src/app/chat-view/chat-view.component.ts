@@ -1,12 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, PopoverController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
+import { GroupService } from '../services/group.service';
 import { ChatService } from '../services/chat.service';
 import { ChatMessage } from '../services/chat-message.interface';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { Subscription } from 'rxjs/internal/Subscription';
+import { ViewChild } from '@angular/core';
+import { IonPopover } from '@ionic/angular';
+
 
 @Component({
   selector: 'app-chat-view',
@@ -16,18 +20,24 @@ import { Subscription } from 'rxjs/internal/Subscription';
   imports: [CommonModule, IonicModule, FormsModule]
 })
 export class ChatViewComponent implements OnInit {
+  @ViewChild('popover') popover?: IonPopover;
+
   groupId: string = '';
   messages: ChatMessage[] = [];
   newMessage: string = '';
+  isPopoverOpen = false;
+  isAdmin = false;
 
-  currentUserId = this.authService.getCurrentUserId() ;
+  currentUserId = this.authService.getCurrentUserId();
   messagesSub: Subscription = new Subscription();
 
   constructor(
     private route: ActivatedRoute,
     private authService: AuthService,
+    private GroupService: GroupService,
     private chatService: ChatService,
-    // Removed messagesSub declaration from constructor
+    private popoverController: PopoverController,
+    private router: Router
   ) {
     // Get groupId from route params
     this.groupId = this.route.snapshot.params['groupId'];
@@ -43,6 +53,14 @@ export class ChatViewComponent implements OnInit {
   ngOnInit() {
     this.loadMessages();
     this.listenForMessages();
+    
+    this.updateAdmin();
+  }
+
+  async updateAdmin() {
+    this.chatService.getAdminId(this.groupId).then((adminId: string) => {
+      this.isAdmin = this.currentUserId === adminId;
+    })
   }
 
   listenForMessages() {
@@ -65,15 +83,94 @@ export class ChatViewComponent implements OnInit {
 
   sendMessage() {
     if (this.newMessage.trim()) {
-      // Send new message using groupId and newMessage
-      this.chatService.sendMessage(this.groupId, this.authService.getCurrentUserId() || 'null', this.newMessage).then(() => {
-        this.newMessage = '';  // Clear the input after sending
-        this.loadMessages();    // Reload messages after sending
-      }).catch((error: Error) => {
-        console.error('Erreur lors de l\'envoi du message:', error);
-      });
+      const senderId = this.authService.getCurrentUserId() || 'null';
+      const currentUserFullName = localStorage.getItem('CurrentFullName') || ''; // example: you can fetch full name from storage
+      const currentEmployeeId = localStorage.getItem('CurrentEmployeeId') || '';
+      const currentUserId = localStorage.getItem('CurrentUserId') || '';
+      const siteId = localStorage.getItem('CurrentSiteId') || '';
+      const companyId = localStorage.getItem('CurrentCompanyId') || '';
+  
+      const messageContent = this.newMessage;
+  
+      this.chatService.sendMessage(this.groupId, senderId, messageContent)
+        .then(async () => {
+          this.newMessage = '';
+          this.loadMessages();
+  
+          // Now send to backend API
+          const apiMessage = {
+            GroupId: this.groupId,
+            UserId: senderId,
+            FullName: currentUserFullName,
+            Photo: null,
+            UrlImg: null,
+            Msg: messageContent,
+            SentDate: new Date().toISOString(), // or local date if needed
+            CreatedBy: currentUserId,
+            CurrentUserId: currentUserId,
+            CurrentEmployeeId: currentEmployeeId,
+            SiteId: siteId,
+            CompanyId: companyId,
+            IsSystem: false,
+            Type: 1
+          };
+  
+          try {
+            await this.GroupService.sendMessageToApi(apiMessage);
+            console.log('Message sent to backend API successfully!');
+          } catch (apiError: any) {
+            console.error('Erreur lors de l\'envoi du message à l\'API:', {
+              status: apiError.status,
+              message: apiError.message,
+              error: apiError.error
+            });
+          }
+  
+        })
+        .catch((error: Error) => {
+          console.error('Erreur lors de l\'envoi du message:', error);
+        });
     }
   }
+  
+
+  isMenuOpen = false;
+
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+  
+  closeMenu() {
+    this.isMenuOpen = false;
+  }
+  async openGroupSettings() {
+    this.closeMenu();
+    this.router.navigate(['/group-settings', this.groupId]);
+  }
+    
+  
+
+  async leaveGroup() {
+    this.isPopoverOpen = false;
+    if (!this.currentUserId) return;
+    try {
+      await this.chatService.leaveGroup(this.groupId, this.currentUserId);
+      this.router.navigate(['/incident-list']);
+    } catch (error) {
+      console.error('Erreur lors de la sortie du groupe:', error);
+    }
+  }
+
+  async deleteGroup() {
+    this.isPopoverOpen = false;
+    try {
+      await this.chatService.deleteGroup(this.groupId);
+      this.router.navigate(['/incident-list']);
+    } catch (error) {
+      console.error('Erreur lors de la suppression du groupe:', error);
+    }
+  }
+
   ngOnDestroy() {
     if (this.messagesSub) {
       this.messagesSub.unsubscribe();

@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { GroupCreationComponent } from './group-creation/group-creation.component';
 import { ChatViewComponent } from './chat-view/chat-view.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { GroupSettingsComponent } from './group-settings/group-settings.component';
 
 export const routes: Routes = [
   {
@@ -24,14 +26,25 @@ export const routes: Routes = [
     component: GroupCreationComponent
   },
   {
+    path: 'dashboard',
+    component: DashboardComponent
+  },
+  {
     path: 'chat/:groupId',
     component: ChatViewComponent
+  },
+  {
+    path: 'group-settings/:groupId',
+    component: GroupSettingsComponent
   },
   {
     path: 'edit-incident/:id',
     loadComponent: () => import('./edit-incident/edit-incident.component').then(m => m.EditIncidentComponent),
   },
-  
+  {
+    path: 'group-settings/:groupId',
+    component: GroupSettingsComponent
+  },
   {
     path: '',
     redirectTo: 'login',

@@ -4,6 +4,11 @@
       <ion-back-button defaultHref="/incident-list"></ion-back-button>
     </ion-buttons>
     <ion-title>{{ groupId || 'Chat' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleMenu()">
+        <ion-icon name="ellipsis-vertical"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -38,4 +43,19 @@
       </ion-button>
     </ion-item>
   </ion-toolbar>
-</ion-footer> 
+</ion-footer>
+
+
+
+  <!-- DROPDOWN MENU -->
+  <ion-list *ngIf="isMenuOpen" class="dropdown-menu">
+    <ion-item button (click)="openGroupSettings()" *ngIf="isAdmin">
+      <ion-label>Modifier le groupe</ion-label>
+    </ion-item>
+    <ion-item button (click)="leaveGroup()">
+      <ion-label>Quitter le groupe</ion-label>
+    </ion-item>
+    <ion-item button (click)="deleteGroup()" *ngIf="isAdmin">
+      <ion-label color="danger">Supprimer le groupe</ion-label>
+    </ion-item>
+  </ion-list>

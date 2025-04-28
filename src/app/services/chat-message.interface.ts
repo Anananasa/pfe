@@ -1,4 +1,5 @@
 export interface ChatMessage {
+  adminId?: string;
   id?: string;         // Optional ID for the message (from Firestore)
   groupId: string;     // ID of the group to which the message belongs
   senderId: string;    // ID of the sender (user)

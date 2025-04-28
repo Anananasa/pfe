@@ -1,0 +1,58 @@
+<ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-back-button defaultHref="/incident-list"></ion-back-button>
+      </ion-buttons>
+      <ion-title>Créer un groupe</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  
+  <ion-content class="ion-padding">
+    <ion-list>
+      <ion-item>
+        <ion-label position="stacked">Nom du groupe</ion-label>
+        <ion-input [(ngModel)]="groupTitle" placeholder="Entrez le nom du groupe"></ion-input>
+      </ion-item>
+  
+      <ion-item-divider>
+        <ion-label>Participants</ion-label>
+      </ion-item-divider>
+  
+      <ion-item *ngFor="let participant of participants">
+        <ion-avatar slot="start">
+          <img [src]="getuserPhotoUrl(participant)" alt="avatar" />
+        </ion-avatar>
+        <ion-label>
+          <h2>{{ participant.fullName }}</h2>
+          <p>{{ participant.isAdmin ? 'Administrateur' : 'Membre' }}</p>
+        </ion-label>
+        <ion-buttons slot="end">
+          <ion-button (click)="toggleRole(participant)">
+            <ion-icon [name]="participant.isAdmin ? 'shield' : 'person'"></ion-icon>
+          </ion-button>
+          <ion-button (click)="removeParticipant(participant)" color="danger">
+            <ion-icon name="trash"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-item>
+  
+      <ion-item button (click)="addParticipant()">
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        <ion-label>Ajouter un participant</ion-label>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+  
+  <ion-footer>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-button (click)="cancel()">Annuler</ion-button>
+      </ion-buttons>
+      <ion-buttons slot="end">
+        <ion-button (click)="createGroupFirebase()" [disabled]="!groupTitle || participants.length === 0">
+          Créer
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-footer>
+  

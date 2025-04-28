@@ -135,10 +135,16 @@ size="small"
             <strong>Système:</strong> <span [innerHTML]="incident.system || 'Système non défini'"></span>
           </div>
         </div>
+        <div *ngIf="incident.risques" class="incident-risques">
+          <div class="incident-risques-title">Risques potentiels </div>
+          <div>{{ incident.risques }}</div>
+        </div>
+        
     </div>
         
         <div class="incident-actions">
           <ion-icon name="chatbubbles-outline" (click)="showMessageOptions(incident)" class="action-icon"></ion-icon>
+          <ion-icon name="warning-outline" (click)="showRisquePopup(incident)" style="margin-left: 30px"></ion-icon>
           <ion-icon
             [name]="selectedIncidentId === incident.id ? 'eye-off-outline' : 'eye-outline'"(click)="toggleDetails(incident)"class="action-icon">
           </ion-icon>
