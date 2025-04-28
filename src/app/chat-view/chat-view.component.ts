@@ -20,7 +20,7 @@ export class ChatViewComponent implements OnInit {
   messages: ChatMessage[] = [];
   newMessage: string = '';
 
-  currentUserId: string = '';
+  currentUserId = this.authService.getCurrentUserId() ;
   messagesSub: Subscription = new Subscription();
 
   constructor(

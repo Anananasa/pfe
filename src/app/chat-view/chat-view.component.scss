@@ -2,6 +2,33 @@ ion-content {
   --background: #f5f5f5;
 }
 
+ion-item.user-message {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+ion-item.user-message ion-label {
+  text-align: right;
+}
+
+ion-item.user-message .message-content {
+  background-color: #e7f0e0; /* light green for user's messages */
+  color: rgb(11, 39, 75);
+  padding: 8px 12px;
+  border-radius: 18px;
+  display: inline-block;
+  margin-left: auto;
+}
+
+ion-item.other-message .message-content {
+  background-color: #e5e5ea; /* light grey for others' messages */
+  padding: 8px 12px;
+  border-radius: 18px;
+  display: inline-block;
+  margin-right: auto;
+}
+
+
 
 .message-content {
   background: white;
@@ -22,7 +49,7 @@ ion-content {
   }
 
   .timestamp {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(3, 3, 32, 0.7);
   }
 }
 
@@ -48,3 +75,7 @@ ion-footer {
     --padding-start: 8px;
   }
 } 
+
+ion-item {
+  --inner-border-width: 0px;
+}
