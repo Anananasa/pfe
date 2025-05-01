@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService, users } from '../services/auth.service';
 import { GroupService } from '../services/group.service';
 import { IonHeader, IonToolbar, ActionSheetController, ToastController, IonButtons, IonBackButton, IonTitle, IonContent, IonList, IonItem, IonLabel, IonItemDivider, IonAvatar, IonButton, IonIcon, IonFooter } from "@ionic/angular/standalone";
+import { IonicModule } from '@ionic/angular';
 
 interface GroupParticipant {
   userId: string;
@@ -20,7 +21,7 @@ interface GroupParticipant {
   templateUrl: './group-creation.component.html',
   styleUrls: ['./group-creation.component.scss'],
   standalone: true,
-  imports: [IonFooter, IonIcon, IonButton, IonAvatar, IonItemDivider, IonLabel, IonItem, IonList, IonContent, IonTitle, IonBackButton, IonButtons, IonToolbar, IonHeader, CommonModule, FormsModule],
+  imports: [IonicModule, IonFooter, IonIcon, IonButton, IonAvatar, IonItemDivider, IonLabel, IonItem, IonList, IonContent, IonTitle, IonBackButton, IonButtons, IonToolbar, IonHeader, CommonModule, FormsModule],
 })
 
 
