@@ -42,6 +42,7 @@
   <ion-input
     placeholder="Posez une question sur les incidents..."
     [(ngModel)]="chatInput"
+    (ionInput)="addMargin()"
     (keyup.enter)="sendChatMessage()"
     class="chat-input"
   ></ion-input>
@@ -51,50 +52,52 @@
 <!-- Floating Filter Panel -->
 <div class="floating-filter" *ngIf="showFilter">
 
-
-
-<ion-item>
-  <ion-label position="stacked">Date</ion-label>
-  <ion-input [(ngModel)]="filter.date" type="date"></ion-input>
-</ion-item>
-
-<ion-item>
-  <ion-label position="stacked">Date de déclaration</ion-label>
-  <ion-input [(ngModel)]="filter.declarationDate" type="date"></ion-input>
-</ion-item>
-
-
-<div class="status-buttons">
+  <ion-item>
+    <ion-label position="stacked">Date</ion-label>
+    <ion-input [(ngModel)]="filter.date" type="date"></ion-input>
+  </ion-item>
+  
+  <ion-item>
+    <ion-label position="stacked">Date de déclaration</ion-label>
+    <ion-input [(ngModel)]="filter.declarationDate" type="date"></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-label position="stacked">Année</ion-label>
+    <ion-input [(ngModel)]="filter.year" type="number" min="2020" max="2100" placeholder="ex: 2025"></ion-input>
+  </ion-item>
+  
+  
+  <div class="status-buttons">
+    <ion-button
+  size="small"
+  [fill]="filter.status === 'En cours' ? 'solid' : 'outline'"
+  [ngClass]="filter.status === 'En cours' ? 'filter-button-en-cours' : ''"
+  (click)="filter.status = 'En cours'">En cours</ion-button>
+  
   <ion-button
-size="small"
-[fill]="filter.status === 'En cours' ? 'solid' : 'outline'"
-[ngClass]="filter.status === 'En cours' ? 'filter-button-en-cours' : ''"
-(click)="filter.status = 'En cours'">En cours</ion-button>
-
-<ion-button
-size="small"
-[fill]="filter.status === 'Rejeté(es)' ? 'solid' : 'outline'"
-[ngClass]="filter.status === 'Rejeté(es)' ? 'filter-button-rejete' : ''"
-(click)="filter.status = 'Rejeté(es)'">Rejeté(es)</ion-button>
-
-<ion-button
-size="small"
-[fill]="filter.status === 'Validé' ? 'solid' : 'outline'"
-[ngClass]="filter.status === 'Validé' ? 'filter-button-valide' : ''"
-(click)="filter.status = 'Validé'">Validé</ion-button>
-
-<ion-button
-size="small"
-[fill]="filter.status === 'Programmé(e)' ? 'solid' : 'outline'"
-[ngClass]="filter.status === 'Programmé(e)' ? 'filter-button-programme' : ''"
-(click)="filter.status = 'Programmé(e)'">Programmé(e)</ion-button>
-
-</div>
-
-<div class="filter-actions">
-  <ion-button size="small" fill="clear" (click)="resetFilter()">Reset</ion-button>
-  <ion-button size="small" (click)="applyFilter()">Apply</ion-button>
-</div>
+  size="small"
+  [fill]="filter.status === 'Rejeté(es)' ? 'solid' : 'outline'"
+  [ngClass]="filter.status === 'Rejeté(es)' ? 'filter-button-rejete' : ''"
+  (click)="filter.status = 'Rejeté(es)'">Rejeté(es)</ion-button>
+  
+  <ion-button
+  size="small"
+  [fill]="filter.status === 'Validé' ? 'solid' : 'outline'"
+  [ngClass]="filter.status === 'Validé' ? 'filter-button-valide' : ''"
+  (click)="filter.status = 'Validé'">Validé</ion-button>
+  
+  <ion-button
+  size="small"
+  [fill]="filter.status === 'Programmé(e)' ? 'solid' : 'outline'"
+  [ngClass]="filter.status === 'Programmé(e)' ? 'filter-button-programme' : ''"
+  (click)="filter.status = 'Programmé(e)'">Programmé(e)</ion-button>
+  
+  </div>
+  
+  <div class="filter-actions">
+    <ion-button size="small" fill="clear" (click)="resetFilter()">Cancel</ion-button>
+    <ion-button size="small" (click)="applyFilter()">Apply</ion-button>
+  </div>
 </div>
 
 

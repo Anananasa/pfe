@@ -2,18 +2,23 @@ import { Injectable } from '@angular/core';
 import { initializeApp, FirebaseApp } from '@angular/fire/app';
 import { getFirestore, Firestore, collection, addDoc, getDocs, query, where, CollectionReference, Timestamp, onSnapshot, orderBy, deleteDoc, doc, updateDoc, arrayRemove, getDoc, updateDoc as updateFirestoreDoc } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/internal/Observable';
+import { ChatFileDto } from './chat-message.interface';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class ChatService {
-  static getAdminId(groupId: string) {
-    throw new Error('Method not implemented.');
-  }
   private firestore: Firestore;
   private messagesRef: CollectionReference;
   private groupsRef: CollectionReference;
+  private apiUrl = 'https://timserver.northeurope.cloudapp.azure.com/QalitasWebApi/api/ChatGroup';
+  private token = localStorage.getItem('token');
+  private headers = new HttpHeaders({
+    'Authorization': `Bearer ${this.token}`,
+    'Accept': 'application/json'
+  });
 
   private firebaseConfig = {
   apiKey: "AIzaSyBmT-WEoNYu14uVDVOW9f6_Ft_PNHV8SIo",
@@ -24,7 +29,7 @@ export class ChatService {
   appId: "1:595779919125:web:5bada50788799fbfeb1d1c"
 };
 
-  constructor() {
+  constructor(private http: HttpClient) {
     const app: FirebaseApp = initializeApp(this.firebaseConfig);
     this.firestore = getFirestore(app);
     this.messagesRef = collection(this.firestore, 'messages');
@@ -66,32 +71,16 @@ const messages = querySnapshot.docs.map(doc => {
     groupId: data.groupId,
     senderId: data.senderId,
     text: data.text,
-    sentAt: data.sentAt.toDate() // Convert Firestore Timestamp to Date
+    sentAt: data.sentAt.toDate() ,// Convert Firestore Timestamp to Date
   };
 });
-    console.log('Messages:', messages);
     return messages;
   }
 
-  async getAdminId(groupId: string) {
+  async getAdminId(groupId: string): Promise<string> {
     try {
-      console.log(groupId)
-      const groupDoc = doc(this.firestore, 'groups', groupId);
-      const groupSnapshot = await getDoc(groupDoc);
-
-      if (groupSnapshot.exists()) {
-        const groupData = groupSnapshot.data();
-        const data = groupData as {
-          adminId: string
-        };
-        
-        return data.adminId;
-        console.log('Group data:', groupData);
-      } else {
-        console.log('Group not found');
-        throw 'error';
-      }
-
+      const response = await this.http.get(`${this.apiUrl}/${groupId}/groupById`, { headers: this.headers }).toPromise();
+      return (response as any)?.createdBy || '';
     } catch (error) {
       console.error('Error getting admin ID:', error);
       throw error;
@@ -115,7 +104,7 @@ const messages = querySnapshot.docs.map(doc => {
             groupId: data.groupId,
             senderId: data.senderId,
             text: data.text,
-            sentAt: data.sentAt.toDate()
+            sentAt: data.sentAt.toDate(),
           };
         });
 

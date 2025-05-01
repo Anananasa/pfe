@@ -1,6 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, NavController, ActionSheetController } from '@ionic/angular';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl, FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ApiService, Incident } from '../services/api.service';
@@ -8,6 +7,8 @@ import { IncidentStateService } from '../services/incident-state.service';
 import { NavHeaderComponent } from '../nav-header/nav-header.component';
 import { AuthService ,Employee} from '../services/auth.service';
 import { QuillModule } from 'ngx-quill';
+import { IncidentMediaComponent } from '../incident-media/incident-media.component'
+import { IonContent, NavController, ActionSheetController, IonLabel, IonItem, IonItemDivider, IonRow, IonGrid, IonCol, IonButton, IonIcon, IonSpinner } from "@ionic/angular/standalone";
 
 interface IncidentTeamDto {
   employeeId: string;
@@ -43,15 +44,13 @@ interface GroupParticipantForm extends GroupParticipant {
   templateUrl: './edit-incident.component.html',
   styleUrls: ['./edit-incident.component.scss'],
   standalone: true,
-  imports: [
+  imports: [IonSpinner, IonIcon, IonButton, IonCol, IonGrid, IonRow, IonItemDivider, IonItem, IonLabel, IonContent,
     CommonModule,
-    IonicModule,
     ReactiveFormsModule,
     FormsModule,
     RouterModule,
     NavHeaderComponent,
-    QuillModule
-  ]
+    QuillModule, IncidentMediaComponent]
 })
 export class EditIncidentComponent implements OnInit {
   incidentForm: FormGroup;

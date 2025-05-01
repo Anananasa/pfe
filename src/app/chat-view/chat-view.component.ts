@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, PopoverController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { GroupService } from '../services/group.service';
 import { ChatService } from '../services/chat.service';
@@ -9,27 +8,37 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { ViewChild } from '@angular/core';
-import { IonPopover } from '@ionic/angular';
-
+//import { IonPopover, IonHeader, IonToolbar, PopoverController, IonButtons, IonBackButton, IonTitle, IonButton, IonIcon, IonContent, IonList, IonItem, IonAvatar, IonLabel, IonFooter } from "@ionic/angular/standalone";
+import { IonicModule } from '@ionic/angular';
+import { PopoverController, IonPopover } from '@ionic/angular';
+interface ChatFileDto {
+  name: string;
+  data: string;
+  type: string;
+}
 
 @Component({
   selector: 'app-chat-view',
   templateUrl: './chat-view.component.html',
   styleUrls: ['./chat-view.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule]
+  imports: [IonicModule, CommonModule, FormsModule]
 })
 export class ChatViewComponent implements OnInit {
   @ViewChild('popover') popover?: IonPopover;
+  @ViewChild('fileInput') fileInput: any;
 
   groupId: string = '';
   messages: ChatMessage[] = [];
   newMessage: string = '';
   isPopoverOpen = false;
+
   isAdmin = false;
 
   currentUserId = this.authService.getCurrentUserId();
   messagesSub: Subscription = new Subscription();
+
+  selectedFiles: ChatFileDto[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -81,42 +90,86 @@ export class ChatViewComponent implements OnInit {
     });
   }
 
+  openFileInput() {
+    this.fileInput.nativeElement.click();
+  }
+
+  async handleFileInput(event: any) {
+    const files = event.target.files;
+    for (let file of files) {
+      const base64 = await this.convertFileToBase64(file);
+      this.selectedFiles.push({
+        name: file.name,
+        data: base64,
+        type: file.type
+      });
+    }
+    // Réinitialiser l'input file
+    this.fileInput.nativeElement.value = '';
+  }
+
+  private convertFileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  }
+
   sendMessage() {
-    if (this.newMessage.trim()) {
+    if (this.newMessage.trim() || this.selectedFiles.length > 0) {
       const senderId = this.authService.getCurrentUserId() || 'null';
-      const currentUserFullName = localStorage.getItem('CurrentFullName') || ''; // example: you can fetch full name from storage
-      const currentEmployeeId = localStorage.getItem('CurrentEmployeeId') || '';
-      const currentUserId = localStorage.getItem('CurrentUserId') || '';
-      const siteId = localStorage.getItem('CurrentSiteId') || '';
-      const companyId = localStorage.getItem('CurrentCompanyId') || '';
-  
       const messageContent = this.newMessage;
-  
+      
       this.chatService.sendMessage(this.groupId, senderId, messageContent)
         .then(async () => {
           this.newMessage = '';
           this.loadMessages();
-  
-          // Now send to backend API
-          const apiMessage = {
-            GroupId: this.groupId,
-            UserId: senderId,
-            FullName: currentUserFullName,
-            Photo: null,
-            UrlImg: null,
+          const groupDetails = await this.GroupService.getGroupDetails(this.groupId);
+          const messages: any = {
+            GroupId: groupDetails['apiId'], // GUID
+            UserId: senderId,               // GUID
+            FullName: 'Unknown', // optional fallback
+            Photo:  '',
+            UrlImg: '',      // use same as Photo if you don't have a different one
             Msg: messageContent,
-            SentDate: new Date().toISOString(), // or local date if needed
-            CreatedBy: currentUserId,
-            CurrentUserId: currentUserId,
-            CurrentEmployeeId: currentEmployeeId,
-            SiteId: siteId,
-            CompanyId: companyId,
+            AttachedFiles: JSON.stringify(this.selectedFiles),
+            Files: this.selectedFiles.map(file => ({
+              Name: file.name,
+              Type: file.type,
+              Data: file.data.length // Adjust if you want to send actual data
+            })),
+            SentDate: new Date(),
+            SeenBy: '',
+            ConnectionId: '',               // optional, set if you use SignalR connection tracking
+            DeleteBy: '',
+            Type: 0,                        // assuming 0 = normal text message
+            IsDeleted: false,
+            DeletionDate: null,
+            SeenByList: [],
+            SiteId: groupDetails['siteId'] || '00000000-0000-0000-0000-000000000000', // fallback GUID
+            CompanyId: groupDetails['companyId'] || '00000000-0000-0000-0000-000000000000',
+            IsShared: false,
+            SharedWith: '',
+            IsBookmark: false,
+            SharedWithNames: '',
+            CreatedDate: new Date(),
+            CreatedBy: senderId,
+            UpdatedDate: new Date(),
+            UpdatedBy: senderId,
+            CrudFrom: 0,
+            Id: crypto.randomUUID(), // or any valid GUID generator
+            CurrentUserId: senderId,
+            CurrentEmployeeId: senderId, // fallback if needed
             IsSystem: false,
-            Type: 1
+            CRUD: 0
           };
-  
+          
+          this.selectedFiles = []; // Réinitialiser les fichiers après l'envoi
           try {
-            await this.GroupService.sendMessageToApi(apiMessage);
+            console.log(messages);
+            await this.GroupService.sendMessageToApi(messages);
             console.log('Message sent to backend API successfully!');
           } catch (apiError: any) {
             console.error('Erreur lors de l\'envoi du message à l\'API:', {
@@ -125,7 +178,6 @@ export class ChatViewComponent implements OnInit {
               error: apiError.error
             });
           }
-  
         })
         .catch((error: Error) => {
           console.error('Erreur lors de l\'envoi du message:', error);
@@ -175,5 +227,16 @@ export class ChatViewComponent implements OnInit {
     if (this.messagesSub) {
       this.messagesSub.unsubscribe();
     }
+  }
+
+  removeFile(file: ChatFileDto) {
+    this.selectedFiles = this.selectedFiles.filter(f => f !== file);
+  }
+
+  downloadFile(file: ChatFileDto) {
+    const link = document.createElement('a');
+    link.href = file.data;
+    link.download = file.name;
+    link.click();
   }
 }

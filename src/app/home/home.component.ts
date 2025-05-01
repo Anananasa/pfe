@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
-import { RouterModule } from '@angular/router'; // ✅ Import nécessaire
+import { RouterModule } from '@angular/router';
+import { IonContent } from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [IonicModule, RouterModule], // ✅ Ajoute RouterModule ici
+  imports: [IonContent, RouterModule], // ✅ Ajoute RouterModule ici
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })

@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { GroupCreateComponent } from './group-create.component';
+import { AuditMediaComponent } from './incident-media.component';
 
-describe('GroupCreateComponent', () => {
-  let component: GroupCreateComponent;
-  let fixture: ComponentFixture<GroupCreateComponent>;
+describe('AuditMediaComponent', () => {
+  let component: AuditMediaComponent;
+  let fixture: ComponentFixture<AuditMediaComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ GroupCreateComponent ],
+      declarations: [ AuditMediaComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(GroupCreateComponent);
+    fixture = TestBed.createComponent(AuditMediaComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

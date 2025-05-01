@@ -118,10 +118,8 @@
       </quill-editor>
     </div>
 
-    <ion-item>
-      <ion-label class="label" position="stacked">Fichiers</ion-label>
-      <input type="file" multiple (change)="onFileChange($event)"/>
-    </ion-item>
+    
+  <app-incident-media></app-incident-media>
 
     <div class="ion-padding BUTTONS">
       <ion-button expand="block" type="submit" [disabled]="!incidentForm.valid || isSubmitting">

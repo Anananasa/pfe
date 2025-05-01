@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
 import { NavHeaderComponent } from '../nav-header/nav-header.component';
 import { ApiService, Incident as ApiIncident } from '../services/api.service';
 import { Chart, registerables, TooltipItem } from 'chart.js';
+import { IonContent, IonCard, IonCardHeader, IonCardTitle, IonIcon, IonCardContent, IonItem, IonLabel, IonList, IonBadge, IonProgressBar } from "@ionic/angular/standalone";
 
 interface DashboardIncident {
   designation: string;
@@ -61,9 +61,8 @@ interface CauseStats {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
   standalone: true,
-  imports: [
+  imports: [IonProgressBar, IonBadge, IonList, IonLabel, IonItem, IonCardContent, IonIcon, IonCardTitle, IonCardHeader, IonCard, IonContent, 
     CommonModule,
-    IonicModule,
     NavHeaderComponent
   ]
 })
@@ -158,12 +157,18 @@ export class DashboardComponent implements OnInit {
 
   private getIncidentStatus(state: number): DashboardIncident['status'] {
     switch (state) {
-      case 0: return 'En cours';
+      case 0: return 'Programmé(e)';
+      case 1: return 'En cours';
+      case 2: return 'Validé';
+      case 3: return 'Rejeté(es)';
+      default: return 'En cours';
+    }
+
+   /* case 0: return 'En cours';
       case 1: return 'Rejeté(es)';
       case 2: return 'Validé';
       case 3: return 'Programmé(e)';
-      default: return 'En cours';
-    }
+      default: return 'En cours'; */
   }
 
   private updateStats() {

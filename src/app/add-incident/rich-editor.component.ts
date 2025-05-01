@@ -3,12 +3,12 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import { IonContent, IonHeader, IonToolbar, IonTitle, IonButton } from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-rich-editor',
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule, QuillModule],
+  imports: [CommonModule, FormsModule, QuillModule, IonContent, IonHeader, IonToolbar, IonTitle, IonButton],
   template: `
     <ion-header>
       <ion-toolbar>

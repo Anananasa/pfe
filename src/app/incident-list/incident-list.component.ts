@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, ToastController, AlertController, ActionSheetController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
@@ -10,13 +9,15 @@ import { IncidentStateService } from '../services/incident-state.service';
 import { Subscription } from 'rxjs';
 import { ChatGroupService } from '../services/chat-group.service';
 import { GroupService } from '../services/group.service';
+import { HttpClient } from '@angular/common/http';
+import { IonInput, IonSearchbar, AlertController, ActionSheetController, ToastController, IonIcon, IonContent, IonRefresher, IonRefresherContent, IonSpinner, IonButton, IonFab, IonFabButton, IonItem, IonLabel, IonList } from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-incident-list',
   templateUrl: './incident-list.component.html',
   styleUrls: ['./incident-list.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule, NavHeaderComponent, FormsModule]
+  imports: [ IonInput, IonSearchbar, IonList, IonLabel, IonItem, IonFabButton, IonFab, IonButton, IonSpinner, IonRefresherContent, IonRefresher, IonContent, IonIcon, CommonModule, NavHeaderComponent, FormsModule]
 })
 export class IncidentListComponent implements OnInit, OnDestroy {
   incidents: any[] = [];
@@ -28,10 +29,13 @@ export class IncidentListComponent implements OnInit, OnDestroy {
   private refreshSubscription: Subscription;
 
   filter = {
-    date: null,
-    declarationDate: null,
-    status: ''
+    date: null as string | null,
+    declarationDate: null as string | null,
+    status: '',
+    year: null as number | null
   };
+  private apiUrl = 'https://timserver.northeurope.cloudapp.azure.com/QalitasWebApi/api/ChatGroup';
+
   constructor(
     private authService: AuthService,
     private apiService: ApiService,
@@ -41,7 +45,8 @@ export class IncidentListComponent implements OnInit, OnDestroy {
     private actionSheetController: ActionSheetController,
     private incidentState: IncidentStateService,
     private chatGroupService: ChatGroupService,
-    private GroupService: GroupService
+    private GroupService: GroupService,
+    private http: HttpClient
   ) {
     this.refreshSubscription = this.incidentState.refreshList$.subscribe(() => {
       this.loadIncidents();
@@ -57,6 +62,13 @@ export class IncidentListComponent implements OnInit, OnDestroy {
   }
   ngOnInit() {
     this.loadIncidents();
+  }
+
+  addMargin() {
+    const filterPanel = document.querySelector('.floating-filter') as HTMLElement;
+    if (filterPanel) {
+      filterPanel.style.marginBottom = '350px';
+    }
   }
 
   ngOnDestroy() {
@@ -114,13 +126,17 @@ export class IncidentListComponent implements OnInit, OnDestroy {
       incident.employeeFullName?.toLowerCase().includes(searchLower)
     );
   }
+  
   applyFilter() {
     this.filteredIncidents = this.incidents.filter((incident) => {
       const dateMatch = !this.filter.date || incident.incidentDate?.startsWith(this.filter.date);
       const declMatch = !this.filter.declarationDate || incident.declarationDate?.startsWith(this.filter.declarationDate);
       const statusMatch = !this.filter.status || incident.stateStr === this.filter.status;
-
-      return dateMatch && declMatch && statusMatch;
+      const yearMatch = !this.filter.year || (
+        incident.incidentDate &&
+        new Date(incident.incidentDate).getFullYear() === +this.filter.year
+      );
+      return dateMatch && declMatch && statusMatch && yearMatch;
     });
   }
 
@@ -128,7 +144,8 @@ export class IncidentListComponent implements OnInit, OnDestroy {
     this.filter = {
       date: null,
       declarationDate: null,
-      status: ''
+      status: '',
+      year: null
     };
     this.filteredIncidents = [...this.incidents]; // or call this.loadIncidents() if needed
   }
@@ -194,8 +211,6 @@ export class IncidentListComponent implements OnInit, OnDestroy {
     });
   }
 
-
-
   async showToast(message: string, color: string = 'primary') {
     const toast = await this.toastController.create({
       message,
@@ -210,7 +225,6 @@ export class IncidentListComponent implements OnInit, OnDestroy {
     const actionSheet = await this.actionSheetController.create({
       header: 'Messages',
       buttons: [
-
         {
           text: 'Voir les groupes existants',
           icon: 'people-outline',
@@ -280,38 +294,49 @@ export class IncidentListComponent implements OnInit, OnDestroy {
     });
   }
 
+  private getHeaders() {
+    const token = localStorage.getItem('token');
+    return {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json'
+    };
+  }
+
   async viewExistingChats(incident: any) {
-    // Récupérer les groupes existants pour cet incident
-    this.GroupService.getUserGroups(this.authService.getCurrentUserId() || 'null', incident.id).then((groups) => {
-        if (groups.length > 0) {
-          // Créer une liste des groupes pour l'action sheet
-          const buttons: any[] = groups.map(group => ({
-            text: (group as any).name || 'Groupe sans nom',
-            handler: () => {
-              // Naviguer vers le chat avec l'ID du groupe
-              this.router.navigate(['/chat', group.id],);
-            }
-          }));
+    try {
+      const response = await this.http.get(`${this.apiUrl}/filter?filter=${encodeURIComponent(JSON.stringify({ 
+        sourceId: incident.id
+      }))}`, { 
+        headers: this.getHeaders() 
+      }).toPromise();
 
-          // Ajouter un bouton Annuler
-          buttons.push({
-            text: 'Annuler',
-            role: 'cancel'
-          });
+      const groups = response as any[];
+      if (groups && groups.length > 0) {
+        const buttons: any[] = groups.map(group => ({
+          text: group.designation || 'Groupe sans nom',
+          handler: () => {
+            this.router.navigate(['/chat', group.id]);
+          }
+        }));
 
-          // Afficher l'action sheet avec la liste des groupes
-          this.actionSheetController.create({
-            header: 'Groupes existants',
-            buttons: buttons
-          }).then(actionSheet => {
-            actionSheet.present();
-          });
-        } else {
-          // Afficher un message si aucun groupe n'existe
-          this.showToast('Aucun groupe existant pour cet incident', 'warning');
-        }
-      },
-  )}
+        buttons.push({
+          text: 'Annuler',
+          role: 'cancel'
+        });
+
+        const actionSheet = await this.actionSheetController.create({
+          header: 'Groupes existants',
+          buttons: buttons
+        });
+        await actionSheet.present();
+      } else {
+        this.showToast('Aucun groupe existant pour cet incident', 'warning');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des groupes:', error);
+      this.showToast('Erreur lors de la récupération des groupes', 'danger');
+    }
+  }
   navigateToAddIncident() {
     this.router.navigate(['/add-incident']);
   }
@@ -445,7 +470,5 @@ Quels sont les risques potentiels liés à cet incident ? Donne une réponse cla
       incident.risques = "Désolé, je n'ai pas pu analyser les risques.";
     });
 }
-
-
 
 }

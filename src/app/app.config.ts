@@ -1,15 +1,15 @@
 import { ApplicationConfig } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
-import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
-import { provideFirestore, getFirestore } from '@angular/fire/firestore';
-
-import { firebaseConfig } from './firebase.config';
+import { devextremeConfig } from './devextreme.config';
+import { MediaCapture } from '@awesome-cordova-plugins/media-capture/ngx';
+import { FileUploadService } from './services/media_services/file-upload.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     // ... autres providers
     provideHttpClient(),
-    provideFirebaseApp(() => initializeApp(firebaseConfig)),
-    provideFirestore(() => getFirestore()),
+    MediaCapture,
+    FileUploadService,
+    ...devextremeConfig.imports
   ]
 };

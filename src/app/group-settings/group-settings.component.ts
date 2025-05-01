@@ -1,18 +1,16 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { IonicModule, ActionSheetController, ToastController } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService, users } from '../services/auth.service';
 import { GroupService } from '../services/group.service';
+import { IonHeader, IonBackButton, ActionSheetController, ToastController, IonContent, IonTitle, IonButtons, IonToolbar, IonItem, IonLabel, IonList, IonItemDivider, IonAvatar, IonButton, IonIcon, IonFooter } from "@ionic/angular/standalone";
 
 interface GroupParticipant {
   userId: string;
-  fullName: string;
-  userName: string | null;
-  serviceDesignation: string;
-  photo: string;
   isAdmin: boolean;
+  photo: string;
+  fullName: string;
 }
 
 @Component({
@@ -20,15 +18,15 @@ interface GroupParticipant {
   templateUrl: './group-settings.component.html',
   styleUrls: ['./group-settings.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule]
+  imports: [IonFooter, IonIcon, IonButton, IonAvatar, IonItemDivider, IonList, IonLabel, IonItem, IonToolbar, IonButtons, IonTitle, IonContent, IonBackButton, IonHeader, CommonModule, FormsModule]
 })
 export class GroupSettingsComponent implements OnInit {
   groupTitle: string = '';
   participants: GroupParticipant[] = [];
   availableusers: users[] = [];
-  incidentId: string = '';
-  incidentName: string = '';
   groupId: string = '';
+  isEditing: boolean = false;
+  incidentId: string = '';
 
   constructor(
     private authService: AuthService,
@@ -41,71 +39,64 @@ export class GroupSettingsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      this.incidentId = params['incidentId'] || '';
-      this.incidentName = params['incidentName'] || '';
-      if (this.incidentId) {
-        this.groupTitle = `Groupe - ${this.incidentName}`;
-        this.loadUsers();
-      }
-    });
+    this.groupId = this.route.snapshot.params['groupId'];
+    console.log('ID du groupe:', this.groupId); // Debug log
+    if (this.groupId) {
+      this.loadGroupDetails();
+    }
+    this.loadUsers();
+  }
+
+  async loadGroupDetails() {
+    try {
+      const groupDetails = await this.groupService.getGroupDetails(this.groupId);
+      console.log('Détails du groupe:', groupDetails); // Debug log
+      
+      this.groupTitle = groupDetails['name'];
+      this.participants = groupDetails['participants'];
+       
+      
+      this.isEditing = true;
+    } catch (error) {
+      console.error('Erreur lors du chargement des détails du groupe:', error);
+      await this.showToast('Erreur lors du chargement des détails du groupe', 'danger');
+    }
   }
 
   loadUsers() {
     this.authService.getUsers().subscribe({
       next: users => {
         this.availableusers = users;
+        console.log('Utilisateurs disponibles:', this.availableusers); // Debug log
         this.cdr.detectChanges();
+        
+        // Si nous sommes en mode édition, recharger les détails du groupe
+        // pour avoir les noms complets des participants
+        if (this.groupId) {
+          this.loadGroupDetails();
+        }
       },
-      error: () => {
+      error: (error) => {
+        console.error('Erreur lors du chargement des utilisateurs:', error); // Debug log
         this.showToast('Erreur lors du chargement des utilisateurs', 'danger');
       }
     });
-    console.log(this.availableusers);
-    
   }
-
-  async createGroupFirebase() {
-    try {
-      // 1. Create the group
-      const adminId = this.authService.getCurrentUserId(); 
-      const userIds = this.participants.map(p => p.userId);
-      this.groupId = await this.groupService.createGroup(this.groupTitle, adminId!, this.incidentId, this.participants);
-      console.log('Group created with ID:', this.groupId);
-  
-      // 2. Then add participants
-      
-      console.log('User IDs to add:', this.participants);
-      await this.groupService.addUsers(this.groupId, this.incidentId, userIds, this.participants);
-  
-      console.log('All users added to group!');
-      await this.showToast('Groupe créé avec succès');
-  
-      // Optionally: redirect to group page or clean the form
-      this.router.navigate(['/incident-list']);
-    } catch (error) {
-      console.error('Error creating group:', error);
-      await this.showToast('Erreur lors de la création du groupe', 'danger');
-    }
-  }
-  
 
   async addParticipant() {
     this.loadUsers();
     console.log(this.participants);
   
     const buttons = this.availableusers
-      .filter(user => !this.participants.some(p => p.fullName === user.fullName))
+      .filter(user => !this.participants.some(p => p.userId === user.userId))
       .map(user => ({
         text: user.fullName,
         handler: () => {
           this.participants.push({
             userId: user.userId,  // lowercase
-            fullName: user.fullName,
-            userName: user.userName,
-            serviceDesignation: user.serviceDesignation,
-            photo: '',
-            isAdmin: false
+            isAdmin: false,
+            photo: user.urlImg,
+            fullName: user.fullName
           });
           
         }
@@ -131,7 +122,7 @@ export class GroupSettingsComponent implements OnInit {
   }
 
   removeParticipant(participant: GroupParticipant) {
-    this.participants = this.participants.filter(p => p.fullName !== participant.fullName);
+    this.participants = this.participants.filter(p => p.userId !== participant.userId);
   }
 
   getuserPhotoUrl(user: GroupParticipant): string {
@@ -143,11 +134,10 @@ export class GroupSettingsComponent implements OnInit {
 
   
 
-  async createGroup() {
+  async saveGroup() {
     try {
       const adminId = this.authService.getCurrentUserId() || 'null';
-      const userIds = this.participants.map(p => p.userId);
-      const groupId = await this.groupService.createGroup(this.groupTitle, adminId, this.incidentId, this.participants);
+      await this.groupService.saveGroup(this.groupTitle, adminId, this.incidentId, this.participants, this.groupId);
         await this.showToast('Groupe créé avec succès');
       
     } catch (error) {
@@ -170,3 +160,6 @@ export class GroupSettingsComponent implements OnInit {
     await toast.present();
   }
 }
+
+
+  

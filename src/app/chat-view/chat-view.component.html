@@ -25,6 +25,15 @@
       <ion-label class="ion-text-wrap">
         <h3 *ngIf="message.senderId !== currentUserId">{{ message.senderId }}</h3>
         <p class="message-content">{{ message.text }}</p>
+        <div *ngIf="message.files && message.files.length > 0">
+          <ion-item *ngFor="let file of message.files" lines="none">
+            <ion-icon name="document" slot="start"></ion-icon>
+            <ion-label>{{ file.name }}</ion-label>
+            <ion-button fill="clear" (click)="downloadFile(file)">
+              <ion-icon name="download"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </div>
         <p class="timestamp">{{ message.sentAt | date:'short' }}</p>
       </ion-label>
     </ion-item>
@@ -34,13 +43,29 @@
 <ion-footer>
   <ion-toolbar>
     <ion-item lines="none">
-      <ion-input [(ngModel)]="newMessage" 
-                placeholder="Tapez votre message..." 
-                type="text">
-      </ion-input>
-      <ion-button slot="end" (click)="sendMessage()" [disabled]="!newMessage.trim()">
-        <ion-icon name="send"></ion-icon>
-      </ion-button>
+      <div class="message-input">
+        <ion-input [(ngModel)]="newMessage" placeholder="Écrivez votre message..." (keyup.enter)="sendMessage()"></ion-input>
+        <ion-button fill="clear" (click)="openFileInput()">
+          <ion-icon name="attach"></ion-icon>
+        </ion-button>
+        <input type="file" #fileInput style="display: none" (change)="handleFileInput($event)">
+        <ion-button fill="clear" (click)="sendMessage()">
+          <ion-icon name="send"></ion-icon>
+        </ion-button>
+      </div>
+    </ion-item>
+    <ion-item *ngIf="selectedFiles.length > 0" lines="none">
+      <ion-label>
+        <ion-list>
+          <ion-item *ngFor="let file of selectedFiles">
+            <ion-icon name="document" slot="start"></ion-icon>
+            <ion-label>{{ file.name }}</ion-label>
+            <ion-button fill="clear" (click)="removeFile(file)">
+              <ion-icon name="close" color="danger"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </ion-list>
+      </ion-label>
     </ion-item>
   </ion-toolbar>
 </ion-footer>

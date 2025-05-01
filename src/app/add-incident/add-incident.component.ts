@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NO_ERRORS_SCHEMA, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, ActionSheetController } from '@ionic/angular';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
@@ -8,6 +8,7 @@ import { ApiService } from '../services/api.service';
 import { NavHeaderComponent } from '../nav-header/nav-header.component';
 import { AuthService, Employee } from '../services/auth.service';
 import { QuillModule } from 'ngx-quill';
+import { IncidentMediaComponent } from '../incident-media/incident-media.component'
 
 interface IncidentTeamDto {
   employeeId: string;
@@ -37,7 +38,8 @@ interface GroupParticipantForm extends GroupParticipant {
   selector: 'app-add-incident',
   templateUrl: './add-incident.component.html',
   styleUrls: ['./add-incident.component.scss'],
-  imports: [CommonModule, IonicModule, ReactiveFormsModule, FormsModule, NavHeaderComponent, QuillModule]
+  schemas: [NO_ERRORS_SCHEMA],
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, FormsModule, NavHeaderComponent, QuillModule, IncidentMediaComponent]
 })
 export class AddIncidentComponent implements OnInit {
   incidentForm: FormGroup;

@@ -1,10 +1,10 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { IonicModule, ActionSheetController, ToastController } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService, users } from '../services/auth.service';
 import { GroupService } from '../services/group.service';
+import { IonHeader, IonToolbar, ActionSheetController, ToastController, IonButtons, IonBackButton, IonTitle, IonContent, IonList, IonItem, IonLabel, IonItemDivider, IonAvatar, IonButton, IonIcon, IonFooter } from "@ionic/angular/standalone";
 
 interface GroupParticipant {
   userId: string;
@@ -20,7 +20,7 @@ interface GroupParticipant {
   templateUrl: './group-creation.component.html',
   styleUrls: ['./group-creation.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule],
+  imports: [IonFooter, IonIcon, IonButton, IonAvatar, IonItemDivider, IonLabel, IonItem, IonList, IonContent, IonTitle, IonBackButton, IonButtons, IonToolbar, IonHeader, CommonModule, FormsModule],
 })
 
 
@@ -145,18 +145,7 @@ export class GroupCreationComponent implements OnInit {
 
   
 
-  async createGroup() {
-    try {
-      const adminId = this.authService.getCurrentUserId() || 'null';
-      const userIds = this.participants.map(p => p.userId);
-      const groupId = await this.groupService.createGroup(this.groupTitle, adminId, this.incidentId, this.participants);
-        await this.showToast('Groupe créé avec succès');
-      
-    } catch (error) {
-      console.error(error);
-      await this.showToast('Erreur lors de la création du groupe', 'danger');
-    }
-  }
+  
 
   cancel() {
     this.router.navigate(['/incident-list']);

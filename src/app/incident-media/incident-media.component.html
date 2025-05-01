@@ -1,0 +1,55 @@
+<div class="content-container">
+  <!-- Icônes d'action -->
+  <div class="icon-container">
+    <ion-icon name="camera" class="action-icon" (click)="takePhoto()">cam</ion-icon>
+    <ion-icon name="mic" class="action-icon" (click)="recordAudio()" *ngIf="!isRecording">mic</ion-icon>
+    <ion-icon name="videocam" class="action-icon" (click)="recordVideo()">video</ion-icon>
+  </div>
+
+  <!-- Zone Drag & Drop -->
+  <div class="drag-drop-area"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)">
+    <p>Déposez vos fichiers ici</p>
+    <p>ou</p>
+    <input type="file" (change)="onFileSelected($event)" multiple />
+  </div>
+
+  <!-- Fichiers -->
+   <div *ngIf="ApiService.incident">
+  <div class="file-list-container" *ngIf="ApiService.incident.incidentFiles.length > 0">
+    <ul>
+      <ng-container *ngFor="let file of ApiService.incident.incidentFiles">
+        <li *ngIf="file.crud !== 3">
+          <div class="file-info">
+            <ng-container [ngSwitch]="true">
+              <img *ngSwitchCase="file.filePath.toLowerCase().includes('.jpeg') || file.filePath.toLowerCase().includes('.jpg') || file.filePath.toLowerCase().includes('.png')"
+                   [src]="getFullPath(file.filePath)" width="100" />
+
+              <video *ngSwitchCase="file.filePath.toLowerCase().includes('.mp4')"
+                     [src]="getFullPath(file.filePath)" width="160" height="120" controls></video>
+
+              <audio *ngSwitchCase="file.filePath.toLowerCase().includes('.m4a') || file.filePath.toLowerCase().includes('media_capture_audio')"
+                     [src]="getFullPath(file.filePath)" controls></audio>
+
+              <a *ngSwitchDefault [href]="getFullPath(file.filePath)" target="_blank">📄 {{ file.fileName }}</a>
+            </ng-container>
+            <ion-icon name="trash-outline" class="delete-icon" (click)="deleteFile(file.id)"></ion-icon>
+          </div>
+        </li>
+      </ng-container>
+    </ul>
+  </div>
+</div>
+
+  <!-- Section Commentaires -->
+  <div class="comment-section">
+    <h3>Commentaires</h3>
+    <dx-html-editor [(value)]="commentText" 
+      height="200px" 
+      placeholder="Écris ton commentaire ici..."
+      [toolbar]="{ items: ['bold', 'italic', 'underline', 'strike', 'alignLeft', 'alignCenter', 'alignRight', 'alignJustify', 'orderedList', 'bulletList', 'link', 'image'] }">
+    </dx-html-editor>
+  </div>
+</div>

@@ -3,7 +3,7 @@
       <ion-buttons slot="start">
         <ion-back-button defaultHref="/incident-list"></ion-back-button>
       </ion-buttons>
-      <ion-title>Créer un groupe</ion-title>
+      <ion-title>{{ isEditing ? 'Modifier le groupe' : 'Créer un groupe' }}</ion-title>
     </ion-toolbar>
   </ion-header>
   
@@ -49,8 +49,8 @@
         <ion-button (click)="cancel()">Annuler</ion-button>
       </ion-buttons>
       <ion-buttons slot="end">
-        <ion-button (click)="createGroupFirebase()" [disabled]="!groupTitle || participants.length === 0">
-          Créer
+        <ion-button (click)="saveGroup()" [disabled]="!groupTitle || participants.length === 0">
+          {{ isEditing ? 'Enregistrer' : 'Créer' }}
         </ion-button>
       </ion-buttons>
     </ion-toolbar>

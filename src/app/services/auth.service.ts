@@ -47,6 +47,10 @@ export class AuthService {
     return localStorage.getItem('CurrentUserId');
   }
 
+  getToken(): string | null {
+    return localStorage.getItem('token');
+  }
+
   getCompanies() {
     return this.http.get(`${this.apiUrl}/api/authorize/companies`);
   }

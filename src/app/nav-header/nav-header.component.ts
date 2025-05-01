@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
+import { IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle } from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-nav-header',
@@ -18,7 +18,7 @@ import { RouterModule } from '@angular/router';
   `,
   styleUrls: ['./nav-header.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule, RouterModule]
+  imports: [CommonModule, RouterModule, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle]
 })
 export class NavHeaderComponent {
   @Input() title: string = '';

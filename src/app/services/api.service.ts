@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { catchError, throwError, tap } from 'rxjs';
+import { catchError, throwError, tap, switchMap } from 'rxjs';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 
 export interface Incident {
+  incidentFiles: any;
   id: string;
   code: string;
   designation: string;
@@ -39,6 +40,34 @@ export interface Incident {
 export class ApiService {
   private apiUrl = 'https://timserver.northeurope.cloudapp.azure.com/QalitasWebApi/api';
   private apiUrltoken = 'https://timserver.northeurope.cloudapp.azure.com/QalitasWebApi/token';
+  public incident: Incident = {
+    incidentFiles: [],
+    id: '',
+    code: '',
+    designation: '',
+    fullDesignation: '',
+    description: '',
+    cause: '',
+    consequence: '',
+    type: 0,
+    typeStr: '',
+    number: 0,
+    state: 0,
+    stateStr: '',
+    incidentDate: '',
+    declarationDate: '',
+    approveDate: null,
+    replyDate: null,
+    duration: 0,
+    employeeId: '',
+    employeeFullName: '',
+    incidentTeams: [],
+    currentEmployeeId: '',
+    currentUserId: '',
+    isSystem: false,
+    crudFrom: 0,
+    observation: ''
+  };
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
@@ -75,11 +104,34 @@ export class ApiService {
   }
 
   createIncident(incident: any): Observable<any> {
+    incident.incidentFiles = this.incident.incidentFiles;
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
+
+    // Si des fichiers sont présents, les envoyer d'abord
+    if (incident.files && incident.files.length > 0) {
+      const formData = new FormData();
+      incident.files.forEach((file: File, index: number) => {
+        formData.append(`files[${index}]`, file);
+      });
+      
+      // Envoyer les fichiers
+      return this.http.post(`${this.apiUrl}/incidents/upload`, formData, { headers }).pipe(
+        switchMap((fileResponse: any) => {
+          // Une fois les fichiers uploadés, créer l'incident avec les références des fichiers
+          const incidentData = {
+            ...incident,
+            attachedFiles: fileResponse.files
+          };
+          return this.http.post<any>(`${this.apiUrl}/incidents`, this.incident, { headers });
+        })
+      );
+    }
+
+    // Si pas de fichiers, créer l'incident directement
     return this.http.post<any>(`${this.apiUrl}/incidents`, incident, { headers });
   }
 
@@ -103,7 +155,7 @@ export class ApiService {
     return this.http.delete(`${this.apiUrl}/Incidents/${id}`, { headers });
   }
 
-  getIncidentById(id: number): Observable<Incident> {
+  getIncidentById(id: string): Observable<Incident> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
@@ -115,6 +167,7 @@ export class ApiService {
   }
 
   updateIncident(id: string, incident: Partial<Incident>): Observable<Incident> {
+    incident.incidentFiles = this.incident.incidentFiles;
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`,
