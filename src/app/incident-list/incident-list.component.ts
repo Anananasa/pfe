@@ -76,7 +76,9 @@ export class IncidentListComponent implements OnInit, OnDestroy {
       this.refreshSubscription.unsubscribe();
     }
   }
-
+  toggleFilter() {
+    this.showFilter = !this.showFilter;
+  }
   getStatusClass(status: string): string {
     switch (status) {
       case 'Validé':
@@ -149,16 +151,43 @@ export class IncidentListComponent implements OnInit, OnDestroy {
     };
     this.filteredIncidents = [...this.incidents]; // or call this.loadIncidents() if needed
   }
-  editIncident(incident: any) {
+async editIncident(incident: any) {
+    const stateStr = incident.stateStr;
+
+  
+    if (stateStr === 'Validé' || stateStr === 'Rejeté(es)') {
+      const alert = await this.alertController.create({
+        header: 'Modification refusée',
+        message: `L'incident a été ${stateStr} et ne peut pas être modifié.`,
+        buttons: ['OK']
+      });
+      await alert.present();
+      return;
+    }
+    
+    
+    // Proceed to edit if allowed
     console.log('Editing incident:', incident);
     console.log('Incident ID:', incident.id);
     this.router.navigate(['/edit-incident', incident.id]);
   }
 
   async confirmDelete(incident: any) {
-    const alert = await this.alertController.create({
-      header: 'suppression',
-      message: `Voulez-Vous supprimer l'incident "${incident.designation}" ?`,
+    const stateStr = incident.stateStr;
+
+  
+    if (stateStr === 'En cours' || stateStr === 'Programmé(e)') {
+      const alert = await this.alertController.create({
+        header: 'suppression refusée',
+        message: `L'incident est ${stateStr} et ne peut pas être supprimer.`,
+        buttons: ['OK']
+      });
+      await alert.present();
+      return;
+    }
+    else {const alert = await this.alertController.create({
+      header: 'Confirmer la suppression',
+      message: `Êtes-vous sûr de vouloir supprimer l'incident "${incident.designation}" ?`,
       buttons: [
         {
           text: 'Annuler',
@@ -174,31 +203,17 @@ export class IncidentListComponent implements OnInit, OnDestroy {
       ]
     });
 
+
     await alert.present();
   }
-  toggleFilter() {
-    this.showFilter = !this.showFilter;
   }
 
-  async presentToast(message: string) {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 2000
-    });
-    await toast.present();
-  }
 
   async deleteIncident(incident: any) {
-    if (incident.stateStr !== 'Rejeté(es)' && incident.stateStr !== 'Validé') {
-      this.presentToast('Seuls les incidents Rejeté(es) ou Validé peuvent être supprimés');
-      return;
-    }
-
     const incidentData = {
       ...incident,
       crudFrom: 3
     };
-
     this.apiService.deleteIncident(incident.id).subscribe({
       next: () => {
         this.incidentState.triggerRefresh();
@@ -210,6 +225,15 @@ export class IncidentListComponent implements OnInit, OnDestroy {
       }
     });
   }
+  async presentToast(message: string) {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 2000
+    });
+    await toast.present();
+  }
+
+
 
   async showToast(message: string, color: string = 'primary') {
     const toast = await this.toastController.create({
@@ -312,10 +336,21 @@ export class IncidentListComponent implements OnInit, OnDestroy {
 
       const groups = response as any[];
       if (groups && groups.length > 0) {
+        console.log('groups', groups);
         const buttons: any[] = groups.map(group => ({
           text: group.designation || 'Groupe sans nom',
           handler: () => {
-            this.router.navigate(['/chat', group.id]);
+            this.router.navigate(['/chat', group.id],
+              {
+                queryParams: {
+                  groupName: group.designation,
+                  participantsNames: JSON.stringify(group.participants.map((p: any) => ({
+                    fullName: p.fullName,
+                    userId: p.userId
+                  })))
+                }
+              }
+            );
           }
         }));
 

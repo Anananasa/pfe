@@ -129,7 +129,7 @@
             <strong>Conséquence:</strong> <span [innerHTML]="incident.consequence || 'Conséquence non définie'"></span>
           </div>
           <div class="incident-detail" [ngClass]="{ 'placeholder': !incident.observation }">
-            <strong>constat</strong> <span [innerHTML]=" incident.observation  || 'constat non définie'"></span>
+            <strong>constat</strong> <span [innerHTML]=" incident.observation  || 'constat non défini'"></span>
           </div>
           <div class="incident-detail" [ngClass]="{ 'placeholder': !incident.duration }">
             <strong>Durée:</strong> {{ incident.duration ? incident.duration + ' minutes' : 'Durée non définie' }}

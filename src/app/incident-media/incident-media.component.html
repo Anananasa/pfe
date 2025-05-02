@@ -1,12 +1,15 @@
 <div class="content-container">
+  
   <!-- Icônes d'action -->
   <div class="icon-container">
+    
     <ion-icon name="camera" class="action-icon" (click)="takePhoto()">cam</ion-icon>
     <ion-icon name="mic" class="action-icon" (click)="recordAudio()" *ngIf="!isRecording">mic</ion-icon>
     <ion-icon name="videocam" class="action-icon" (click)="recordVideo()">video</ion-icon>
   </div>
 
   <!-- Zone Drag & Drop -->
+   
   <div class="drag-drop-area"
       (dragover)="onDragOver($event)"
       (dragleave)="onDragLeave($event)"
@@ -37,19 +40,16 @@
             </ng-container>
             <ion-icon name="trash-outline" class="delete-icon" (click)="deleteFile(file.id)"></ion-icon>
           </div>
+          <div class="file-comment">
+            <ion-input [(ngModel)]="file.comments" 
+              [value]="file.comments ? file.comments : ''"
+              placeholder="Ajouter un commentaire pour ce fichier..."
+              (ionChange)="updateFileComment(file)" />
+          </div>
         </li>
       </ng-container>
     </ul>
   </div>
 </div>
 
-  <!-- Section Commentaires -->
-  <div class="comment-section">
-    <h3>Commentaires</h3>
-    <dx-html-editor [(value)]="commentText" 
-      height="200px" 
-      placeholder="Écris ton commentaire ici..."
-      [toolbar]="{ items: ['bold', 'italic', 'underline', 'strike', 'alignLeft', 'alignCenter', 'alignRight', 'alignJustify', 'orderedList', 'bulletList', 'link', 'image'] }">
-    </dx-html-editor>
-  </div>
 </div>

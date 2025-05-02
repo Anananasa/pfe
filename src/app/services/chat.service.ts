@@ -120,6 +120,19 @@ const messages = querySnapshot.docs.map(doc => {
 
   async leaveGroup(groupId: string, userId: string) {
     try {
+      // Récupérer les détails actuels du groupe
+      const groupDetails = await this.getGroupDetails(groupId);
+      
+      // Filtrer le participant qui quitte du tableau des participants
+      const updatedParticipants = groupDetails['participants'].filter((p: { userId: string }) => p.userId !== userId);
+
+      // Mettre à jour le groupe dans l'API avec la nouvelle liste de participants
+      await this.http.put(`${this.apiUrl}/${groupId}`, {
+        ...groupDetails,
+        participants: updatedParticipants
+      }, { headers: this.headers }).toPromise();
+
+      // Supprimer le participant du groupe dans Firestore
       const groupDoc = doc(this.firestore, 'groups', groupId);
       await updateFirestoreDoc(groupDoc, {
         members: arrayRemove(userId)
@@ -133,19 +146,22 @@ const messages = querySnapshot.docs.map(doc => {
 
   async deleteGroup(groupId: string) {
     try {
-      // Delete all messages in the group
+      // Supprimer le groupe dans l'API
+      await this.http.delete(`${this.apiUrl}/${groupId}`, { headers: this.headers }).toPromise();
+
+      // Supprimer tous les messages du groupe dans Firestore
       const messagesQuery = query(this.messagesRef, where('groupId', '==', groupId));
       const messagesSnapshot = await getDocs(messagesQuery);
       const deletePromises = messagesSnapshot.docs.map(doc => deleteDoc(doc.ref));
       await Promise.all(deletePromises);
 
-      // Delete the group document
+      // Supprimer le document du groupe dans Firestore
       const groupDoc = doc(this.firestore, 'groups', groupId);
       await deleteDoc(groupDoc);
       
-      console.log('Group deleted successfully');
+      console.log('Groupe supprimé avec succès');
     } catch (error) {
-      console.error('Error deleting group:', error);
+      console.error('Erreur lors de la suppression du groupe:', error);
       throw error;
     }
   }

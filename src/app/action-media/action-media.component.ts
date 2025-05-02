@@ -155,7 +155,7 @@ export class ActionMediaComponent  implements OnInit {
         resolve(filePathResponse);
       } catch (error) {
         console.error('Erreur upload fichier', error);
-        this.actionService.presentToast("top", "Erreur lors de l’upload du fichier", "danger");
+        this.actionService.presentToast("top", "Erreur lors de l'upload du fichier", "danger");
         reject(error);
       }
     });
@@ -172,7 +172,7 @@ export class ActionMediaComponent  implements OnInit {
     })
     .catch((err) => {
       console.error("Erreur lors de l'ajout de l'audio :", err);
-      this.actionService.presentToast("top", "Erreur lors de l’ajout de l’audio", "danger");
+      this.actionService.presentToast("top", "Erreur lors de l'ajout de l'audio", "danger");
     });
   }
   
@@ -183,8 +183,8 @@ export class ActionMediaComponent  implements OnInit {
       this.addToActionFiles(filePathResponse);
     })
     .catch((error) => {
-      console.error("Erreur lors de la prise ou l’envoi de la photo", error);
-      this.actionService.presentToast("top", "Erreur lors de la prise ou l’envoi de la photo", "danger");
+      console.error("Erreur lors de la prise ou l'envoi de la photo", error);
+      this.actionService.presentToast("top", "Erreur lors de la prise ou l'envoi de la photo", "danger");
     });
   }
   
@@ -197,7 +197,7 @@ export class ActionMediaComponent  implements OnInit {
     })
     .catch((err) => {
       console.error("Erreur lors de la vidéo :", err);
-      this.actionService.presentToast("top", "Erreur lors de l’ajout de la vidéo", "danger");
+      this.actionService.presentToast("top", "Erreur lors de l'ajout de la vidéo", "danger");
     });
   }
   

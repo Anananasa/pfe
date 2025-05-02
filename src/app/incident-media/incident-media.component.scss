@@ -67,10 +67,8 @@ ion-header {
   .file-info {
     display: flex;
     align-items: center;
-    gap: 12px;
-    flex: 1;
-    max-width: 100%;
-    overflow: hidden;
+    justify-content: space-between;
+    margin-bottom: 10px;
   }
   
   .file-info img,
@@ -148,7 +146,7 @@ ion-header {
   
   /* Section Commentaires */
   .comment-section {
-    margin-top: 5px;
+    margin-top: 20px;
     padding: 15px;
     background: #f8f9fa;
     border-radius: 10px;
@@ -157,6 +155,17 @@ ion-header {
   .comment-section h3 {
     margin-bottom: 5px;
     color:#0054e9;
+  }
+  
+  .file-comment {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 5px;
+  }
+
+  .file-comment dx-html-editor {
+    width: 100%;
   }
   
   

@@ -9,6 +9,8 @@ import { NavHeaderComponent } from '../nav-header/nav-header.component';
 import { AuthService, Employee } from '../services/auth.service';
 import { QuillModule } from 'ngx-quill';
 import { IncidentMediaComponent } from '../incident-media/incident-media.component'
+import { Keyboard, KeyboardResize } from '@capacitor/keyboard';
+import { Capacitor } from '@capacitor/core';
 
 interface IncidentTeamDto {
   employeeId: string;
@@ -79,7 +81,13 @@ export class AddIncidentComponent implements OnInit {
   
   ngOnInit() {
     this.loadEmployees();
+    if (Capacitor.getPlatform() !== 'web') {
+      Keyboard.setAccessoryBarVisible({ isVisible: true });
+      Keyboard.setScroll({ isDisabled: false });
+      Keyboard.setResizeMode({ mode: KeyboardResize.Body });
+    }
   }
+  
 
   loadEmployees() {
     this.authService.getEmployees().subscribe({

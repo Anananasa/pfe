@@ -202,12 +202,12 @@ ion-content {
 }
 
 .filter-button-en-cours {
-  --background: #ffc107; /* yellow */
+  --background: red; /* yellow */
   --color: black;
 }
 
 .filter-button-rejete {
-  --background: red; /* red */
+  --background: #ffc107; /* red */
   --color: white;
 }
 

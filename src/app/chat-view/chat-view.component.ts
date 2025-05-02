@@ -17,6 +17,11 @@ interface ChatFileDto {
   type: string;
 }
 
+interface Participant {
+  "fullName": string;
+  "userId": string
+}
+
 @Component({
   selector: 'app-chat-view',
   templateUrl: './chat-view.component.html',
@@ -32,6 +37,8 @@ export class ChatViewComponent implements OnInit {
   messages: ChatMessage[] = [];
   newMessage: string = '';
   isPopoverOpen = false;
+  groupName: string = '';
+  participantsNames: Participant[] = [];
 
   isAdmin = false;
 
@@ -50,7 +57,9 @@ export class ChatViewComponent implements OnInit {
   ) {
     // Get groupId from route params
     this.groupId = this.route.snapshot.params['groupId'];
-    
+    this.groupName = this.route.snapshot.queryParams['groupName'];
+    this.participantsNames = JSON.parse(this.route.snapshot.queryParams['participantsNames']);
+
     // Get currentUserId from localStorage (assuming it stores user data with 'id')
     const authData = localStorage.getItem('authData');
     if (authData) {
@@ -239,4 +248,11 @@ export class ChatViewComponent implements OnInit {
     link.download = file.name;
     link.click();
   }
+
+  getSenderName(senderId: string): string {
+    console.log('senderId', senderId);
+    console.log('participantsNames', this.participantsNames);
+    return this.participantsNames.find(p => p.userId === senderId)?.fullName || 'Utilisateur';
+  }
+  
 }

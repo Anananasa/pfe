@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService, users } from '../services/auth.service';
 import { GroupService } from '../services/group.service';
+import { IonicModule } from '@ionic/angular';
 import { IonHeader, IonBackButton, ActionSheetController, ToastController, IonContent, IonTitle, IonButtons, IonToolbar, IonItem, IonLabel, IonList, IonItemDivider, IonAvatar, IonButton, IonIcon, IonFooter } from "@ionic/angular/standalone";
 
 interface GroupParticipant {
@@ -18,7 +19,7 @@ interface GroupParticipant {
   templateUrl: './group-settings.component.html',
   styleUrls: ['./group-settings.component.scss'],
   standalone: true,
-  imports: [IonFooter, IonIcon, IonButton, IonAvatar, IonItemDivider, IonList, IonLabel, IonItem, IonToolbar, IonButtons, IonTitle, IonContent, IonBackButton, IonHeader, CommonModule, FormsModule]
+  imports: [IonicModule,IonFooter, IonIcon, IonButton, IonAvatar, IonItemDivider, IonList, IonLabel, IonItem, IonToolbar, IonButtons, IonTitle, IonContent, IonBackButton, IonHeader, CommonModule, FormsModule]
 })
 export class GroupSettingsComponent implements OnInit {
   groupTitle: string = '';
@@ -52,7 +53,7 @@ export class GroupSettingsComponent implements OnInit {
       const groupDetails = await this.groupService.getGroupDetails(this.groupId);
       console.log('Détails du groupe:', groupDetails); // Debug log
       
-      this.groupTitle = groupDetails['name'];
+      this.groupTitle = groupDetails.name;
       this.participants = groupDetails['participants'];
        
       

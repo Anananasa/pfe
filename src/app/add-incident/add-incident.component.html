@@ -1,6 +1,6 @@
 <app-nav-header title="Ajouter un incident" backUrl="/incident-list"></app-nav-header>
 
-<ion-content class="ion-padding">
+<ion-content class="ion-padding" [scrollAssist]="true" [scrollPadding]="true">
   <form class=" page-content" [formGroup]="incidentForm" (ngSubmit)="onSubmit()">
       <ion-item>
         <ion-label class="label" position="stacked">Désignation:</ion-label>
@@ -120,7 +120,7 @@
 
     
   <app-incident-media></app-incident-media>
-
+  
     <div class="ion-padding BUTTONS">
       <ion-button expand="block" type="submit" [disabled]="!incidentForm.valid || isSubmitting">
         <ion-spinner *ngIf="isSubmitting"></ion-spinner>

@@ -3,12 +3,8 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/incident-list"></ion-back-button>
     </ion-buttons>
-    <ion-title>{{ groupId || 'Chat' }}</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="toggleMenu()">
-        <ion-icon name="ellipsis-vertical"></ion-icon>
-      </ion-button>
-    </ion-buttons>
+    <ion-title>{{ groupName || 'Chat' }}</ion-title>
+    
   </ion-toolbar>
 </ion-header>
 
@@ -23,7 +19,7 @@
       </ion-avatar>
   
       <ion-label class="ion-text-wrap">
-        <h3 *ngIf="message.senderId !== currentUserId">{{ message.senderId }}</h3>
+        <h3 *ngIf="message.senderId !== currentUserId">{{ getSenderName(message.senderId) }}</h3>
         <p class="message-content">{{ message.text }}</p>
         <div *ngIf="message.files && message.files.length > 0">
           <ion-item *ngFor="let file of message.files" lines="none">
@@ -73,7 +69,7 @@
 
 
   <!-- DROPDOWN MENU -->
-  <ion-list *ngIf="isMenuOpen" class="dropdown-menu">
+  <!--<ion-list *ngIf="isMenuOpen" class="dropdown-menu">
     <ion-item button (click)="openGroupSettings()" *ngIf="isAdmin">
       <ion-label>Modifier le groupe</ion-label>
     </ion-item>
@@ -83,4 +79,5 @@
     <ion-item button (click)="deleteGroup()" *ngIf="isAdmin">
       <ion-label color="danger">Supprimer le groupe</ion-label>
     </ion-item>
-  </ion-list>
+  </ion-list>-->
+

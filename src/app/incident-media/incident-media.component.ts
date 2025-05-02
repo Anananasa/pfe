@@ -15,7 +15,7 @@ import { ApiService } from '../services/api.service';
 import { VideoService } from 'src/app/services/media_services/video.service';
 import { PhotoService } from 'src/app/services/media_services/photo.service';
 import { AudioService } from 'src/app/services/media_services/audio.service';
-import { IonIcon, ToastController } from "@ionic/angular/standalone";
+import { IonIcon, ToastController, IonInput } from "@ionic/angular/standalone";
 import { MediaCapture } from '@awesome-cordova-plugins/media-capture/ngx';
 
 @Component({
@@ -23,7 +23,7 @@ import { MediaCapture } from '@awesome-cordova-plugins/media-capture/ngx';
   selector: 'app-incident-media',
   templateUrl: './incident-media.component.html',
   styleUrls: ['./incident-media.component.scss'],
-  imports: [IonIcon, CommonModule, FormsModule, DxHtmlEditorModule]
+  imports: [IonInput, IonIcon, CommonModule, FormsModule, DxHtmlEditorModule]
 })
 export class IncidentMediaComponent  implements OnInit {
 
@@ -68,18 +68,29 @@ export class IncidentMediaComponent  implements OnInit {
     ) { }
 
   ngOnInit() {
+    this.commentText = '';
     this.route.params.subscribe(params => {
       this.incidentId = params['id'];
       if (this.incidentId) {
         this.getincidentData(this.incidentId);
+        console.log(this.commentText);
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.commentText = '';
+    this.ApiService.incident.incidentFiles = [];
   }
 
 
   private getAuthHeaders(): HttpHeaders {
     const token = this.authService.getToken();
     return new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+  }
+
+  updateFileComment(file: incidentFile) {
+    this.commentText = file.comments;
   }
   
   getincidentData(incidentId: string) {
@@ -152,7 +163,7 @@ export class IncidentMediaComponent  implements OnInit {
         const fileExtension = originalFileName.split('.').pop();
         const generatedFileName = `${originalFileName.split('.')[0]}-${uuidv4()}.${fileExtension}`;
         const folderId = uuidv4();
-        const folderPath = `~/Uploaded/${folderId}/Audits/${generatedFileName}`;
+        const folderPath = `~/Uploaded/${folderId}/incidents/${generatedFileName}`;
         const virtualPath = `${folderPath}/${generatedFileName}`;
         const filePathResponse = `${virtualPath}|${originalFileName}|${generatedFileName}`;
   
@@ -181,6 +192,7 @@ export class IncidentMediaComponent  implements OnInit {
   
     this.audioService.recordAndUploadAudio().then((filePathResponse: string) => {
       this.addToincidentFiles(filePathResponse);
+      this.commentText = '';
     })
     .catch((err) => {
       console.error("Erreur lors de l'ajout de l'audio :", err);
@@ -192,6 +204,7 @@ export class IncidentMediaComponent  implements OnInit {
   takePhoto() {
     this.photoService.takeAndUploadPhoto().then((filePathResponse: string) => {
       this.addToincidentFiles(filePathResponse);
+      this.commentText = '';
     })
     .catch((error: any) => {
       console.error("Erreur lors de la prise ou l'envoi de la photo", error);
@@ -204,6 +217,7 @@ export class IncidentMediaComponent  implements OnInit {
 
     this.videoService.recordVideo().then((filePathResponse: string) => {
       this.addToincidentFiles(filePathResponse);
+      this.commentText = '';
     })
     .catch((err: any) => {
       console.error("Erreur lors de la vidéo :", err);
@@ -211,6 +225,8 @@ export class IncidentMediaComponent  implements OnInit {
   }
   
   addToincidentFiles(filePathResponse: string) {
+    const comment = this.commentText || '';
+    this.commentText = '';
 
     const newincidentFile: incidentFile = {
       comments: this.commentText || '',
@@ -231,6 +247,9 @@ export class IncidentMediaComponent  implements OnInit {
       isSystem: false,
       crud: 1
     };
+    this.commentText = '';
+    console.log("commentText", this.commentText);
+    console.log("newincidentFile", newincidentFile);
 
     this.ApiService.incident.incidentFiles.push(newincidentFile);
   }
