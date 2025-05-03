@@ -153,8 +153,8 @@ ion-content {
 }
 .filter-toggle {
   position: absolute;
-  top: 10px;
-  right: 16px;
+  top: 11px;
+  right: 14px;
   z-index: 50;
 }
 
@@ -227,9 +227,10 @@ ion-content {
 
   font-size: 16px;
   font-weight: bold;
-  height: 44px;
-  min-width: 50px;
+  height: 42px;
+  min-width: 35px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  margin-top: 5px;
 }
 .exit-btn {
   z-index: 101;
@@ -290,6 +291,27 @@ ion-icon {
     margin-bottom: 10px;
   }
 }
+.refresh-btn {
+  position: absolute;
+  top: 2px;
+  padding-right: 0px;
+  top: 4px;
+  right: 0px;
+  z-index: 2;
+  // Optionnel : ajustez selon votre design
+}
+
+
+.input {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
 /* Bloc d'analyse IA des risques */
 .incident-risques {
   background-color: #fff3cd; /* fond jaune pâle */
@@ -311,4 +333,23 @@ ion-icon {
   color: #664d03;
   margin-bottom: 4px;
 }
-  
+
+.icon-button-with-badge {
+  position: relative;
+}
+
+.group-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 10px;
+  height: 16px;
+  min-width: 16px;
+  padding: 0 4px;
+  background: red;
+  color: white;
+  border-radius: 8px;
+  text-align: center;
+  line-height: 16px;
+  z-index: 10;
+}

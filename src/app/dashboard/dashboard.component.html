@@ -21,34 +21,42 @@
     <!-- Incidents Récents -->
     <ion-card class="dashboard-card">
       <ion-card-header>
-        <ion-card-title>Incidents Récents</ion-card-title>
+        <ion-card-title class="ion-text-center" (click)="openIncidentRecent()" style="cursor: pointer">
+          <ion-icon name="chevron-down-outline" *ngIf="!isIncidentRecentOpen"></ion-icon>
+          <ion-icon name="chevron-up-outline" *ngIf="isIncidentRecentOpen"></ion-icon>
+          Incidents Récents
+        </ion-card-title>
       </ion-card-header>
-      <ion-card-content>
-        <ion-list>
-          <ion-item *ngFor="let incident of recentIncidents">
-            <ion-label>
-              <h2>{{incident.designation}}</h2>
-              <p>{{incident.date | date}}</p>
-              <p>Équipe: {{incident.team}}</p>
-            </ion-label>
-            <ion-badge [color]="getStatusColor(incident.status)" slot="end">
-              {{incident.status}}
-            </ion-badge>
-          </ion-item>
-        </ion-list>
-      </ion-card-content>
+        <ion-card-content *ngIf="isIncidentRecentOpen">
+          <ion-list>
+            <ion-item *ngFor="let incident of recentIncidents">
+              <ion-label>
+                <h2>{{incident.designation}}</h2>
+                <p>{{incident.date | date}}</p>
+                <p>Équipe: {{incident.team}}</p>
+              </ion-label>
+              <ion-badge [color]="getStatusColor(incident.status)" slot="end">
+                {{incident.status}}
+              </ion-badge>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
     </ion-card>
 
     <!-- Performance de l'Équipe -->
-    <ion-card class="dashboard-card">
+    <!--<ion-card class="dashboard-card">
       <ion-card-header>
-        <ion-card-title>Performance de l'Équipe</ion-card-title>
+        <ion-card-title class="ion-text-center" (click)="openTeamPerformance()" style="cursor: pointer">
+          <ion-icon name="chevron-down-outline" *ngIf="!isTeamPerformanceOpen"></ion-icon>
+          <ion-icon name="chevron-up-outline" *ngIf="isTeamPerformanceOpen"></ion-icon>
+          Performance de l'Équipe
+        </ion-card-title>
       </ion-card-header>
-      <ion-card-content>
+      <ion-card-content *ngIf="isTeamPerformanceOpen">
         <div class="team-performance">
           <div *ngFor="let team of topPerformingTeams" class="team-item">
             <div class="team-header">
-              <h3>{{team.name}}</h3>
+              <h3>{{team.name}}</h3>  
               <ion-badge color="success">{{team.successRate | number:'1.0-0'}}%</ion-badge>
             </div>
             <div class="team-stats">
@@ -64,9 +72,13 @@
      <!-- Statistiques par Statut -->
   <ion-card class="dashboard-card">
     <ion-card-header>
-      <ion-card-title>Statistiques par Statut</ion-card-title>
+      <ion-card-title class="ion-text-center" (click)="openStatusStatistics()" style="cursor: pointer">
+        <ion-icon name="chevron-down-outline" *ngIf="!isStatusStatisticsOpen"></ion-icon>
+        <ion-icon name="chevron-up-outline" *ngIf="isStatusStatisticsOpen"></ion-icon>
+        Statistiques par Statut
+      </ion-card-title>
     </ion-card-header>
-    <ion-card-content>
+    <ion-card-content *ngIf="isStatusStatisticsOpen">
       <div class="status-pie-chart">
         <canvas #statusPieChart></canvas>
       </div>
@@ -84,11 +96,15 @@
   </ion-card>
 
     <!-- Distribution des Équipes -->
-    <ion-card class="dashboard-card">
+    <!--<ion-card class="dashboard-card">
       <ion-card-header>
-        <ion-card-title>Distribution des Équipes</ion-card-title>
+          <ion-card-title class="ion-text-center" (click)="openTeamDistribution()" style="cursor: pointer">
+          <ion-icon name="chevron-down-outline" *ngIf="!isTeamDistributionOpen"></ion-icon>
+          <ion-icon name="chevron-up-outline" *ngIf="isTeamDistributionOpen"></ion-icon>
+          Distribution des Équipes
+        </ion-card-title>
       </ion-card-header>
-      <ion-card-content>
+      <ion-card-content *ngIf="isTeamDistributionOpen">
         <div class="team-distribution">
           <div *ngFor="let item of teamDistribution" class="team-item">
             <div class="team-header">
@@ -99,12 +115,17 @@
           </div>
         </div>
       </ion-card-content>
-    </ion-card>
+    </ion-card>-->
+
     <ion-card class="dashboard-card">
       <ion-card-header>
-        <ion-card-title>Temps de Résolution Moyen</ion-card-title>
+        <ion-card-title class="ion-text-center" (click)="openAverageResolutionTime()" style="cursor: pointer">
+          <ion-icon name="chevron-down-outline" *ngIf="!isAverageResolutionTimeOpen"></ion-icon>
+          <ion-icon name="chevron-up-outline" *ngIf="isAverageResolutionTimeOpen"></ion-icon>
+          Temps de Résolution Moyen
+        </ion-card-title>
       </ion-card-header>
-      <ion-card-content>
+      <ion-card-content *ngIf="isAverageResolutionTimeOpen">
         <div class="resolution-time">
           <div class="time-value">{{averageResolutionTime | number:'1.0-0'}} min</div>
           <div class="time-label">pour les incidents validés</div>
@@ -117,9 +138,13 @@
   <!-- Statistiques sur les Causes et Conséquences -->
   <ion-card class="dashboard-card">
     <ion-card-header>
-      <ion-card-title>Causes et Conséquences</ion-card-title>
+      <ion-card-title class="ion-text-center" (click)="openCausesAndConsequences()" style="cursor: pointer">
+        <ion-icon name="chevron-down-outline" *ngIf="!isCausesAndConsequencesOpen"></ion-icon>
+        <ion-icon name="chevron-up-outline" *ngIf="isCausesAndConsequencesOpen"></ion-icon>
+        Causes et Conséquences
+      </ion-card-title>
     </ion-card-header>
-    <ion-card-content>
+    <ion-card-content *ngIf="isCausesAndConsequencesOpen">
       <div class="causes-distribution">
         <h3>Top 5 Causes</h3>
         <div *ngFor="let item of topCauses" class="cause-item">
@@ -155,9 +180,13 @@
   <!-- Statistiques Temporelles -->
   <ion-card class="dashboard-card full-width">
     <ion-card-header>
-      <ion-card-title>Statistiques Temporelles</ion-card-title>
+      <ion-card-title class="ion-text-center" (click)="openTimeStatistics()" style="cursor: pointer">
+        <ion-icon name="chevron-down-outline" *ngIf="!isTimeStatisticsOpen"></ion-icon>
+        <ion-icon name="chevron-up-outline" *ngIf="isTimeStatisticsOpen"></ion-icon>
+        Statistiques Temporelles
+      </ion-card-title>
     </ion-card-header>
-    <ion-card-content>
+    <ion-card-content *ngIf="isTimeStatisticsOpen">
       <div class="time-chart">
         <canvas #timeChart></canvas>
       </div>
@@ -174,9 +203,112 @@
     </ion-card-content>
   </ion-card>
 
- 
+  <!-- Galerie d'Images des Incidents -->
+  <ion-card class="dashboard-card full-width">
+    <ion-card-header>
+      <ion-card-title>Galerie d'Images des Incidents</ion-card-title>
+      
+    </ion-card-header>
+    <ion-card-content>
+      <ion-searchbar  
+        [(ngModel)]="searchTerm"
+        (ionInput)="filterGallery()"
+        placeholder="Rechercher un incident..."
+        animated="true"
+        class="ion-padding"
+      ></ion-searchbar>
 
+      <div *ngIf="isLoading" class="ion-text-center ion-padding">
+        <ion-spinner></ion-spinner>
+        <p>Chargement des incidents...</p>
+      </div>
 
+      <!-- Filter Button -->
+      <div class="filter-toggle">
+        <ion-button fill="clear" size="small" (click)="toggleFilter()">
+          <ion-icon name="filter"></ion-icon>
+        </ion-button>
+      </div>
+
+      <!-- Floating Filter Panel -->
+      <div class="floating-filter" *ngIf="showFilter">
+        <ion-button class="refresh-btn" fill="clear" size="large" (click)="resetFilter()">
+          <ion-icon name="refresh-outline"></ion-icon>  
+        </ion-button>
+        <br/>
+        <ion-item>
+          <ion-label position="stacked">Date</ion-label>
+          <ion-input [(ngModel)]="filter.date" type="date"></ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Date de déclaration</ion-label>
+          <ion-input [(ngModel)]="filter.declarationDate" type="date"></ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Année</ion-label>
+          <ion-input [(ngModel)]="filter.year" type="number" min="2020" max="2100" placeholder="ex: 2025"></ion-input>
+        </ion-item>
+        
+        <div class="filter-actions">
+          <ion-button size="small" fill="clear" (click)="resetandtoggle()">Annuler</ion-button>
+          <ion-button size="small" (click)="applyFilter()">Appliquer</ion-button>
+        </div>
+      </div>
+
+      <!-- Galerie -->
+      <div class="gallery-grid">
+        <div *ngFor="let incident of incidentsThatHaveFiles" class="gallery-item">
+          <ion-card (click)="toggleIncidentImages(incident)">
+            <div class="file-list-container" *ngIf="incident.showImages">
+              <ng-container *ngFor="let file of incident.incidentFiles">
+                <div class="file-info">
+                  <ng-container [ngSwitch]="true">
+                    <img *ngIf="file.filePath.toLowerCase().endsWith('.jpg') || 
+                              file.filePath.toLowerCase().endsWith('.jpeg') || 
+                              file.filePath.toLowerCase().endsWith('.png')" 
+                         [src]="getFullPath(file.filePath)" 
+                         width="100" 
+                         loading="lazy"
+                         (error)="handleImageError($event)"
+                         (click)="openImageFullscreen(file.filePath)" />
+                  </ng-container>    
+                </div>
+              </ng-container>
+            </div>
+            <ion-card-header>
+              <ion-card-subtitle>Code: {{incident.code}}</ion-card-subtitle>
+              <ion-card-title>{{incident.designation}}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content >
+              <p>Date: {{incident.incidentDate | date:'dd/MM/yyyy'}}</p>
+              <p>Statut: {{incident.stateStr}}</p>
+              <ion-icon [name]="incident.showImages ? 'eye-off-outline' : 'eye-outline'" 
+                       class="toggle-icon"></ion-icon>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
 
   </div>
+
+  <!-- Modal pour l'affichage en plein écran -->
+  <ion-modal [isOpen]="isImageModalOpen" (didDismiss)="closeImageModal()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Image</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeImageModal()">Fermer</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <img [src]="selectedImagePath" class="fullscreen-image" />
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 </ion-content> 

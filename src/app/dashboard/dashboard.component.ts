@@ -3,7 +3,32 @@ import { CommonModule } from '@angular/common';
 import { NavHeaderComponent } from '../nav-header/nav-header.component';
 import { ApiService, Incident as ApiIncident } from '../services/api.service';
 import { Chart, registerables, TooltipItem } from 'chart.js';
-import { IonContent, IonCard, IonCardHeader, IonCardTitle, IonIcon, IonCardContent, IonItem, IonLabel, IonList, IonBadge, IonProgressBar } from "@ionic/angular/standalone";
+
+import { 
+  IonContent, 
+  IonCard, 
+  IonCardHeader, 
+  IonCardTitle, 
+  IonCardSubtitle,
+  IonIcon, 
+  IonCardContent, 
+  IonItem, 
+  IonLabel, 
+  IonList, 
+  IonBadge, 
+  IonProgressBar, 
+  IonSearchbar, 
+  ModalController,
+  IonButton,
+  IonInput,
+  IonSpinner,
+  IonModal,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons
+} from "@ionic/angular/standalone";
+import { FormsModule } from '@angular/forms';
 
 interface DashboardIncident {
   designation: string;
@@ -13,6 +38,9 @@ interface DashboardIncident {
   team: string;
   cause?: string;
   consequence?: string;
+  imageUrl?: string;
+  code?: string;
+  showImages: boolean;
 }
 
 interface TeamPerformance {
@@ -56,14 +84,43 @@ interface CauseStats {
   count: number;
 }
 
+interface FilterOptions {
+  date?: string;
+  declarationDate?: string;
+  year?: number;
+  code?: string;
+}
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
   standalone: true,
-  imports: [IonProgressBar, IonBadge, IonList, IonLabel, IonItem, IonCardContent, IonIcon, IonCardTitle, IonCardHeader, IonCard, IonContent, 
+  imports: [
+    IonProgressBar, 
+    IonBadge, 
+    IonList, 
+    IonLabel, 
+    IonItem, 
+    IonCardContent, 
+    IonIcon, 
+    IonCardTitle, 
+    IonCardSubtitle,
+    IonCardHeader, 
+    IonCard, 
+    IonContent,
+    IonSearchbar,
+    IonButton,
+    IonInput,
+    IonSpinner,
     CommonModule,
-    NavHeaderComponent
+    NavHeaderComponent,
+    FormsModule,
+    IonModal,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons
   ]
 })
 export class DashboardComponent implements OnInit {
@@ -99,13 +156,36 @@ export class DashboardComponent implements OnInit {
   dayDistribution: DayStats[] = [];
   topCauses: CauseStats[] = [];
   topConsequences: CauseStats[] = [];
+  isIncidentRecentOpen: boolean = false;
 
-  constructor(private apiService: ApiService) {
+  // Propriétés pour la galerie
+  searchTerm: string = '';
+  selectedDate: string = '';
+  filteredIncidents: DashboardIncident[] = [];
+  showFilter: boolean = false;
+  isLoading: boolean = false;
+  filter: FilterOptions = {};
+  commentText: string = '';
+  showImages = true; // Par défaut, les images sont visibles
+
+  isImageModalOpen = false;
+  selectedImagePath = '';
+
+  constructor(
+    public apiService: ApiService,
+    private modalController: ModalController
+  ) {
     Chart.register(...registerables);
   }
 
   ngOnInit() {
     this.loadDashboardData();
+    this.getincidentData(this.apiService.incident.id);
+  }
+
+  ionViewWillEnter() {
+    this.loadDashboardData();
+    this.getincidentData(this.apiService.incident.id);
   }
 
   getStatusColor(status: DashboardIncident['status']): string {
@@ -133,8 +213,14 @@ export class DashboardComponent implements OnInit {
           duration: incident.duration || 0,
           team: incident.incidentTeams?.[0]?.employeeFullName || 'Non assigné',
           cause: incident.cause,
-          consequence: incident.consequence
+          consequence: incident.consequence,
+          image: incident.incidentFiles,
+          code: incident.code,
+          showImages: true
         }));
+
+        // Initialiser la galerie filtrée
+        this.filteredIncidents = [...this.allIncidents];
 
         this.updateStats();
         this.updateRecentIncidents();
@@ -236,44 +322,45 @@ export class DashboardComponent implements OnInit {
   }
 
   private initPieChart() {
-    if (!this.statusPieChart?.nativeElement) {
-      console.error('Canvas element not found for pie chart');
-      return;
-    }
+    setTimeout(() => {
+      if (!this.statusPieChart?.nativeElement) {
+        return;
+      }
 
-    if (this.pieChart) {
-      this.pieChart.destroy();
-    }
+      if (this.pieChart) {
+        this.pieChart.destroy();
+      }
 
-    const ctx = this.statusPieChart.nativeElement.getContext('2d');
-    if (!ctx) {
-      console.error('Could not get 2D context for pie chart');
-      return;
-    }
+      const ctx = this.statusPieChart.nativeElement.getContext('2d');
+      if (!ctx) {
+        console.error('Could not get 2D context for pie chart');
+        return;
+      }
 
-    this.pieChart = new Chart(ctx, {
-      type: 'pie',
-      data: {
-        labels: this.statusDistribution.map(item => item.status),
-        datasets: [{
-          data: this.statusDistribution.map(item => item.count),
-          backgroundColor: this.statusDistribution.map(item => 
-            getComputedStyle(document.documentElement)
-              .getPropertyValue(`--ion-color-${this.getStatusColor(item.status)}`)
-          ),
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false
+      this.pieChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: this.statusDistribution.map(item => item.status),
+          datasets: [{
+            data: this.statusDistribution.map(item => item.count),
+            backgroundColor: this.statusDistribution.map(item => 
+              getComputedStyle(document.documentElement)
+                .getPropertyValue(`--ion-color-${this.getStatusColor(item.status)}`)
+            ),
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
           }
         }
-      }
-    });
+      });
+    }, 0);
   }
 
   private updateTeamDistribution() {
@@ -431,201 +518,198 @@ export class DashboardComponent implements OnInit {
   }
 
   private initEmployeeChart() {
-    if (!this.employeeChart?.nativeElement) {
-      console.error('Canvas element not found for employee chart');
-      return;
-    }
+    setTimeout(() => {
+      if (!this.employeeChart?.nativeElement) {
+        return;
+      }
 
-    if (this.employeeBarChart) {
-      this.employeeBarChart.destroy();
-    }
+      if (this.employeeBarChart) {
+        this.employeeBarChart.destroy();
+      }
 
-    const ctx = this.employeeChart.nativeElement.getContext('2d');
-    if (!ctx) {
-      console.error('Could not get 2D context for employee chart');
-      return;
-    }
+      const ctx = this.employeeChart.nativeElement.getContext('2d');
+      if (!ctx) {
+        console.error('Could not get 2D context for employee chart');
+        return;
+      }
 
-    this.employeeBarChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: this.topEmployees.map(emp => emp.name),
-        datasets: [{
-          label: 'Nombre d\'incidents',
-          data: this.topEmployees.map(emp => emp.count),
-          backgroundColor: 'rgba(54, 162, 235, 0.5)',
-          borderColor: 'rgb(54, 162, 235)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false
+      this.employeeBarChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: this.topEmployees.map(emp => emp.name),
+          datasets: [{
+            label: 'Nombre d\'incidents',
+            data: this.topEmployees.map(emp => emp.count),
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgb(54, 162, 235)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
           }
         }
-      }
-    });
+      });
+    }, 0);
   }
 
   private initTimeChart() {
-    if (!this.timeChart?.nativeElement) {
-      console.error('Canvas element not found for time chart');
-      return;
-    }
+    setTimeout(() => {
+      if (!this.timeChart?.nativeElement) {
+        return;
+      }
 
-    if (this.timeLineChart) {
-      this.timeLineChart.destroy();
-    }
+      if (this.timeLineChart) {
+        this.timeLineChart.destroy();
+      }
 
-    const ctx = this.timeChart.nativeElement.getContext('2d');
-    if (!ctx) {
-      console.error('Could not get 2D context for time chart');
-      return;
-    }
+      const ctx = this.timeChart.nativeElement.getContext('2d');
+      if (!ctx) {
+        console.error('Could not get 2D context for time chart');
+        return;
+      }
 
-    this.timeLineChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: this.dayDistribution.map(day => day.name),
-        datasets: [{
-          label: 'Incidents par jour',
-          data: this.dayDistribution.map(day => day.count),
-          borderColor: 'rgb(75, 192, 192)',
-          tension: 0.1
-        }]
-      },
-      options: {
+      this.timeLineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: this.dayDistribution.map(day => day.name),
+          datasets: [{
+            label: 'Incidents par jour',
+            data: this.dayDistribution.map(day => day.count),
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    }, 0);
+  }
+
+  private initCausesAndConsequencesCharts() {
+    setTimeout(() => {
+      if (!this.causesChart?.nativeElement || !this.consequencesChart?.nativeElement) {
+        return;
+      }
+
+      if (this.causesBarChart) {
+        this.causesBarChart.destroy();
+      }
+      if (this.consequencesBarChart) {
+        this.consequencesBarChart.destroy();
+      }
+
+      const causesCtx = this.causesChart.nativeElement.getContext('2d');
+      const consequencesCtx = this.consequencesChart.nativeElement.getContext('2d');
+
+      if (!causesCtx || !consequencesCtx) {
+        console.error('Could not get 2D context for causes/consequences charts');
+        return;
+      }
+
+      // Configuration commune pour les deux graphiques
+      const commonOptions = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
             display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: function(tooltipItem: TooltipItem<'bar'>) {
+                return `${tooltipItem.raw} incidents`;
+              }
+            }
           }
-        }
-      }
-    });
-  }
-
-  private initCausesAndConsequencesCharts() {
-    if (!this.causesChart?.nativeElement || !this.consequencesChart?.nativeElement) {
-      console.error('Canvas elements not found for causes/consequences charts');
-      return;
-    }
-
-    if (this.causesBarChart) {
-      this.causesBarChart.destroy();
-    }
-    if (this.consequencesBarChart) {
-      this.consequencesBarChart.destroy();
-    }
-
-    const causesCtx = this.causesChart.nativeElement.getContext('2d');
-    const consequencesCtx = this.consequencesChart.nativeElement.getContext('2d');
-
-    if (!causesCtx || !consequencesCtx) {
-      console.error('Could not get 2D context for causes/consequences charts');
-      return;
-    }
-
-    // Configuration commune pour les deux graphiques
-    const commonOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false
         },
-        tooltip: {
-          callbacks: {
-            label: function(tooltipItem: TooltipItem<'bar'>) {
-              return `${tooltipItem.raw} incidents`;
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
             }
           }
         }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            stepSize: 1
-          }
-        }
-      }
-    };
+      };
 
-    this.causesBarChart = new Chart(causesCtx, {
-      type: 'bar',
-      data: {
-        labels: this.topCauses.map(item => item.cause),
-        datasets: [{
-          label: 'Nombre d\'occurrences',
-          data: this.topCauses.map(item => item.count),
-          backgroundColor: 'rgba(255, 99, 132, 0.7)',
-          borderColor: 'rgb(255, 99, 132)',
-          borderWidth: 1,
-          borderRadius: 5
-        }]
-      },
-      options: {
-        ...commonOptions,
-        indexAxis: 'y',
-        plugins: {
-          ...commonOptions.plugins,
-          title: {
-            display: true,
-            text: 'Top 5 Causes',
-            font: {
-              size: 14,
-              weight: 'bold'
+      this.causesBarChart = new Chart(causesCtx, {
+        type: 'bar',
+        data: {
+          labels: this.topCauses.map(item => item.cause),
+          datasets: [{
+            label: 'Nombre d\'occurrences',
+            data: this.topCauses.map(item => item.count),
+            backgroundColor: 'rgba(255, 99, 132, 0.7)',
+            borderColor: 'rgb(255, 99, 132)',
+            borderWidth: 1,
+            borderRadius: 5
+          }]
+        },
+        options: {
+          ...commonOptions,
+          indexAxis: 'y',
+          plugins: {
+            ...commonOptions.plugins,
+            title: {
+              display: true,
+              text: 'Top 5 Causes',
+              font: {
+                size: 14,
+                weight: 'bold'
+              }
             }
           }
         }
-      }
-    });
+      });
 
-    this.consequencesBarChart = new Chart(consequencesCtx, {
-      type: 'bar',
-      data: {
-        labels: this.topConsequences.map(item => item.cause),
-        datasets: [{
-          label: 'Nombre d\'occurrences',
-          data: this.topConsequences.map(item => item.count),
-          backgroundColor: 'rgba(153, 102, 255, 0.7)',
-          borderColor: 'rgb(153, 102, 255)',
-          borderWidth: 1,
-          borderRadius: 5
-        }]
-      },
-      options: {
-        ...commonOptions,
-        indexAxis: 'y',
-        plugins: {
-          ...commonOptions.plugins,
-          title: {
-            display: true,
-            text: 'Top 5 Conséquences',
-            font: {
-              size: 14,
-              weight: 'bold'
+      this.consequencesBarChart = new Chart(consequencesCtx, {
+        type: 'bar',
+        data: {
+          labels: this.topConsequences.map(item => item.cause),
+          datasets: [{
+            label: 'Nombre d\'occurrences',
+            data: this.topConsequences.map(item => item.count),
+            backgroundColor: 'rgba(153, 102, 255, 0.7)',
+            borderColor: 'rgb(153, 102, 255)',
+            borderWidth: 1,
+            borderRadius: 5
+          }]
+        },
+        options: {
+          ...commonOptions,
+          indexAxis: 'y',
+          plugins: {
+            ...commonOptions.plugins,
+            title: {
+              display: true,
+              text: 'Top 5 Conséquences',
+              font: {
+                size: 14,
+                weight: 'bold'
+              }
             }
           }
         }
-      }
-    });
+      });
+    }, 0);
   }
 
   ngAfterViewInit() {
-    // Réinitialiser les graphiques après que la vue soit complètement chargée
-    setTimeout(() => {
-      this.initPieChart();
-      this.initEmployeeChart();
-      this.initTimeChart();
-      this.initCausesAndConsequencesCharts();
-    }, 0);
+    // Les graphiques seront initialisés uniquement lorsque leurs sections respectives seront ouvertes
   }
 
   getMaxCauseCount(): number {
@@ -634,5 +718,166 @@ export class DashboardComponent implements OnInit {
 
   getMaxConsequenceCount(): number {
     return Math.max(...this.topConsequences.map(item => item.count), 1);
+  }
+
+  // Méthodes pour la galerie
+  toggleFilter() {
+    this.showFilter = !this.showFilter;
+  }
+  resetandtoggle() {
+    
+    this.toggleFilter();
+    this.resetFilter();
+  }
+  resetFilter() {
+    this.filter = {
+      date: undefined,
+      declarationDate: undefined,
+      year: undefined
+    };
+    this.filteredIncidents = [...this.allIncidents];
+  }
+
+  applyFilter() {
+    this.showFilter = false;
+    this.filterGallery();
+  }
+
+  filterGallery() {
+    this.filteredIncidents = this.allIncidents.filter(incident => {
+      // Filtre par texte de recherche
+      const matchesSearch = !this.searchTerm || 
+        incident.designation.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        (incident.code && incident.code.toLowerCase().includes(this.searchTerm.toLowerCase()));
+      
+      // Filtre par date
+      const matchesDate = !this.filter.date || 
+        incident.date.toISOString().split('T')[0] === this.filter.date;
+      
+      // Filtre par année
+      const matchesYear = !this.filter.year || 
+        incident.date.getFullYear() === this.filter.year;
+      
+      // Filtre par statut
+      
+
+      return matchesSearch && matchesDate && matchesYear ;
+    });
+  }
+  isTeamPerformanceOpen: boolean = false;
+
+  openTeamPerformance() {
+    this.isTeamPerformanceOpen = !this.isTeamPerformanceOpen;
+    if (this.isTeamPerformanceOpen) {
+      this.initEmployeeChart();
+    }
+  }
+
+  isTeamDistributionOpen: boolean = false;    
+
+  openTeamDistribution() {
+    this.isTeamDistributionOpen = !this.isTeamDistributionOpen;
+    if (this.isTeamDistributionOpen) {
+      this.initPieChart();
+    }
+  }
+  isAverageResolutionTimeOpen: boolean = false;
+
+  openAverageResolutionTime() {
+    this.isAverageResolutionTimeOpen = !this.isAverageResolutionTimeOpen;
+  }
+  isStatusStatisticsOpen: boolean = false;
+
+  openStatusStatistics() {
+    this.isStatusStatisticsOpen = !this.isStatusStatisticsOpen;
+    if (this.isStatusStatisticsOpen) {
+      this.initPieChart();
+    }
+  } 
+  isCausesAndConsequencesOpen: boolean = false;
+
+  openCausesAndConsequences() {
+    this.isCausesAndConsequencesOpen = !this.isCausesAndConsequencesOpen;
+    if (this.isCausesAndConsequencesOpen) {
+      this.initCausesAndConsequencesCharts();
+    }
+  } 
+  isTimeStatisticsOpen: boolean = false;
+
+  openTimeStatistics() {
+    this.isTimeStatisticsOpen = !this.isTimeStatisticsOpen;
+    if (this.isTimeStatisticsOpen) {
+      this.initTimeChart();
+    }
+  } 
+  
+  
+  
+  
+
+  openIncidentRecent() {
+    this.isIncidentRecentOpen = !this.isIncidentRecentOpen;
+  }
+  async openImageModal(incident: DashboardIncident) {
+    const modal = await this.modalController.create({
+      component: 'ImageModalComponent', // Vous devrez créer ce composant
+      componentProps: {
+        imageUrl: incident.imageUrl,
+        incidentDetails: {
+          code: incident.code,
+          designation: incident.designation,
+          date: incident.date,
+          status: incident.status
+        }
+      }
+    });
+    return await modal.present();
+  }
+  getFullPath(filePath: string): string {
+    return filePath?.split('|')[0]?.replace('~', 'https://timserver.northeurope.cloudapp.azure.com/QalitasDemo') || '';
+  }
+  
+  getincidentData(incidentId: string) {
+    this.apiService.getIncidentById(incidentId).subscribe((data) => {
+      if (data) {
+        this.apiService.incident = data;
+      }
+      console.log(this.apiService.incident);
+      this.getIncidentsThatHaveFiles();
+    });
+  }
+
+  getIncidentsThatHaveFiles() {
+    for (let incident of (this.apiService.incident as any)) {
+      if (incident.incidentFiles.length > 0) {
+        incident.showImages = false; // Initialiser la propriété showImages
+        this.incidentsThatHaveFiles.push(incident);
+        this.incidents.push(incident);
+      }
+    }
+    console.log("incidentsThatHaveFiles", this.incidentsThatHaveFiles);
+  }
+  
+
+  incidentsThatHaveFiles: any[] = [];
+  
+  incidents: any[] = [];  
+
+  toggleIncidentImages(incident: any) {
+    incident.showImages = !incident.showImages;
+  }
+
+  handleImageError(event: any) {
+    event.target.style.display = 'none';
+  }
+
+  openImageFullscreen(filePath: string) {
+    this.selectedImagePath = this.getFullPath(filePath);
+    this.isImageModalOpen = true;
+  }
+
+  closeImageModal() {
+    this.isImageModalOpen = false;
+    this.selectedImagePath = '';
   }
 } 

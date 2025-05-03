@@ -3,8 +3,7 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { HttpClientModule } from '@angular/common/http';
 import * as IonIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
-import { Keyboard, KeyboardResize } from '@capacitor/keyboard';
-import { Capacitor } from '@capacitor/core';
+import { Platform } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-root',
@@ -13,24 +12,24 @@ import { Capacitor } from '@capacitor/core';
   imports: [IonApp, IonRouterOutlet, HttpClientModule],
 })
 export class AppComponent implements OnInit {
-  constructor() {
+  constructor(private platform: Platform) {
     addIcons(IonIcons);
   }
 
   ngOnInit() {
-    if (Capacitor.getPlatform() !== 'web') {
-      Keyboard.setAccessoryBarVisible({ isVisible: true });
-      Keyboard.setScroll({ isDisabled: false });
-      Keyboard.setResizeMode({ mode: KeyboardResize.Body });
-    }
-    Keyboard.addListener('keyboardWillShow', (info) => {
-      document.body.classList.add('keyboard-open');
-      console.log('Keyboard shown with height:', info.keyboardHeight);
+    this.platform.keyboardDidShow.subscribe(event => {
+      const { keyboardHeight } = event;
+      const content = document.querySelector('ion-content');
+      if (content) {
+        content.style.setProperty('--keyboard-height', `${keyboardHeight}px`);
+      }
     });
 
-    Keyboard.addListener('keyboardWillHide', () => {
-      document.body.classList.remove('keyboard-open');
-      console.log('Keyboard hidden');
+    this.platform.keyboardDidHide.subscribe(() => {
+      const content = document.querySelector('ion-content');
+      if (content) {
+        content.style.removeProperty('--keyboard-height');
+      }
     });
   }
 
@@ -46,6 +45,4 @@ export class AppComponent implements OnInit {
       });
     }
   }
-  
-  
 }

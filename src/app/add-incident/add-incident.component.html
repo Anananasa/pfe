@@ -4,17 +4,17 @@
   <form class=" page-content" [formGroup]="incidentForm" (ngSubmit)="onSubmit()">
       <ion-item>
         <ion-label class="label" position="stacked">Désignation:</ion-label>
-        <input  maxlength="50"  class="input" formControlName="designation" type="text"/>
+        <input  maxlength="50"  class="input" formControlName="designation" type="text" inputmode="text"/>
       </ion-item>
       <div class="dates">
         <ion-item>
           <ion-label class="label" position="stacked">Date de l'incident:</ion-label>
-          <input class="input-label" formControlName="date" type="date"/>
+          <input class="input-label" formControlName="date" type="date" inputmode="text"/>
         </ion-item>
     
         <ion-item>
           <ion-label class="label" position="stacked">Date de déclaration:</ion-label>
-          <input class="input-label" formControlName="dateDeclaration" type="date"/>
+          <input class="input-label" formControlName="dateDeclaration" type="date" inputmode="text"/>
         </ion-item>
       </div>
   <ion-item-divider>
@@ -51,7 +51,7 @@
         </ion-checkbox>
       </ion-col>
       <ion-col size="2">
-        <ion-input [formControl]="participant.commentControl" placeholder="Ajouter un commentaire"></ion-input>
+        <ion-input [formControl]="participant.commentControl" placeholder="Ajouter un commentaire" inputmode="text"></ion-input>
       </ion-col>
       <ion-col size="1">
         <ion-button fill="clear" color="danger" (click)="removeParticipant(participant)" [disabled]="participant.id === currentUser?.id">
@@ -70,6 +70,7 @@
     <div class="description-section">
       <div class="description-label">Description</div>
       <quill-editor
+      inputmode="text"
       class="richText"
         formControlName="description"
         [modules]="editorModules"
@@ -80,7 +81,7 @@
     
     <ion-item>
       <ion-label class="label" position="stacked">Durée (en minutes)</ion-label>
-      <input class="input" formControlName="duration" type="number" min="0"/>
+      <input class="input" formControlName="duration" type="number" min="0" inputmode="text"/>
     </ion-item>
 
       
@@ -88,6 +89,7 @@
     <div class="description-section">
       <div class="description-label">constat</div>
       <quill-editor
+        inputmode="text"
         class="richText"
         formControlName="observation"
         [modules]="editorModules"
@@ -99,7 +101,8 @@
     <div class="description-section">
       <div class="description-label">causes</div>
       <quill-editor
-      class="richText"
+        inputmode="text"
+        class="richText"
         formControlName="causes"
         [modules]="editorModules"
         theme="snow"
@@ -110,7 +113,8 @@
     <div class="description-section">
       <div class="description-label">consequences</div>
       <quill-editor
-      class="richText"
+        inputmode="text"
+        class="richText"
         formControlName="consequences"
         [modules]="editorModules"
         theme="snow"

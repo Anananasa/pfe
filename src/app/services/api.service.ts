@@ -32,6 +32,7 @@ export interface Incident {
   isSystem: boolean;
   crudFrom: number;
   observation: string;
+  
 }
 
 @Injectable({

@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Détails de l'Incident</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="closeModal()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="image-container">
+    <img [src]="imageUrl" alt="Image de l'incident" class="modal-image">
+  </div>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>{{incidentDetails.designation}}</ion-card-title>
+      <ion-card-subtitle *ngIf="incidentDetails.code">Code: {{incidentDetails.code}}</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <p>Date: {{incidentDetails.date | date}}</p>
+      <p>Statut: {{incidentDetails.status}}</p>
+    </ion-card-content>
+  </ion-card>
+</ion-content> 

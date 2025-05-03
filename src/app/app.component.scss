@@ -1,3 +1,23 @@
+ion-app {
+  height: 100%;
+  overflow: auto;
+  transition: height 0.2s ease-in-out;
+}
+
+ion-content {
+  height: 100%;
+  --keyboard-offset: var(--keyboard-height, 0px);
+  --padding-bottom: var(--keyboard-offset);
+  transition: height 0.2s ease-in-out;
+}
+
 .keyboard-open {
-    bottom: 300px !important; 
+  ion-app {
+    --keyboard-offset: var(--keyboard-height, 0px);
+    margin-bottom: var(--keyboard-offset);
   }
+  ion-content {
+    --keyboard-offset: var(--keyboard-height, 0px);
+    margin-bottom: var(--keyboard-offset);
+  }
+}

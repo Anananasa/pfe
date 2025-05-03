@@ -81,7 +81,7 @@ export class AddIncidentComponent implements OnInit {
   
   ngOnInit() {
     this.loadEmployees();
-    if (Capacitor.getPlatform() !== 'web') {
+    if (Capacitor.isNativePlatform()) {
       Keyboard.setAccessoryBarVisible({ isVisible: true });
       Keyboard.setScroll({ isDisabled: false });
       Keyboard.setResizeMode({ mode: KeyboardResize.Body });

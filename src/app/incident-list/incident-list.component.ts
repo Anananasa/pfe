@@ -11,13 +11,14 @@ import { ChatGroupService } from '../services/chat-group.service';
 import { GroupService } from '../services/group.service';
 import { HttpClient } from '@angular/common/http';
 import { IonInput, IonSearchbar, AlertController, ActionSheetController, ToastController, IonIcon, IonContent, IonRefresher, IonRefresherContent, IonSpinner, IonButton, IonFab, IonFabButton, IonItem, IonLabel, IonList } from "@ionic/angular/standalone";
-
+import { IonBadge } from '@ionic/angular/standalone';
+import { Observable } from 'rxjs';
 @Component({
   selector: 'app-incident-list',
   templateUrl: './incident-list.component.html',
   styleUrls: ['./incident-list.component.scss'],
   standalone: true,
-  imports: [ IonInput, IonSearchbar, IonList, IonLabel, IonItem, IonFabButton, IonFab, IonButton, IonSpinner, IonRefresherContent, IonRefresher, IonContent, IonIcon, CommonModule, NavHeaderComponent, FormsModule]
+  imports: [ IonInput,IonBadge, IonSearchbar, IonList, IonLabel, IonItem, IonFabButton, IonFab, IonButton, IonSpinner, IonRefresherContent, IonRefresher, IonContent, IonIcon, CommonModule, NavHeaderComponent, FormsModule]
 })
 export class IncidentListComponent implements OnInit, OnDestroy {
   incidents: any[] = [];
@@ -102,6 +103,18 @@ export class IncidentListComponent implements OnInit, OnDestroy {
         console.log('Received incidents:', data);
         this.incidents = data || [];
         this.filteredIncidents = [...this.incidents];
+        this.incidents.forEach(incident => {
+          this.countviewExistingChats(incident.id).subscribe({
+            next: (count) => {
+              incident.groupCount = count;
+              incident.hasGroupChat = count > 0;
+            },
+            error: () => {
+              incident.groupCount = 0;
+              incident.hasGroupChat = false;
+            }
+          });
+        });
       },
       error: (error) => {
         console.error('Error loading incidents:', error);
@@ -112,6 +125,26 @@ export class IncidentListComponent implements OnInit, OnDestroy {
         console.log('Loading completed');
         this.isLoading = false;
       }
+    });
+  }
+
+  countviewExistingChats(incidentId: number) {
+    return new Observable<number>(observer => {
+      this.http.get(`${this.apiUrl}/filter?filter=${encodeURIComponent(JSON.stringify({ 
+        sourceId: incidentId
+      }))}`, { 
+        headers: this.getHeaders() 
+      }).subscribe({
+        next: (groups: any) => {
+          observer.next(groups ? groups.length : 0);
+          observer.complete();
+        },
+        error: (error) => {
+          console.error('Erreur lors du comptage des groupes:', error);
+          observer.next(0);
+          observer.complete();
+        }
+      });
     });
   }
 
@@ -140,6 +173,11 @@ export class IncidentListComponent implements OnInit, OnDestroy {
       );
       return dateMatch && declMatch && statusMatch && yearMatch;
     });
+  }
+  resetandtoggle() {
+    
+    this.toggleFilter();
+    this.resetFilter();
   }
 
   resetFilter() {
