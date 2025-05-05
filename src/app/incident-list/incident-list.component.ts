@@ -11,14 +11,13 @@ import { ChatGroupService } from '../services/chat-group.service';
 import { GroupService } from '../services/group.service';
 import { HttpClient } from '@angular/common/http';
 import { IonInput, IonSearchbar, AlertController, ActionSheetController, ToastController, IonIcon, IonContent, IonRefresher, IonRefresherContent, IonSpinner, IonButton, IonFab, IonFabButton, IonItem, IonLabel, IonList } from "@ionic/angular/standalone";
-import { IonBadge } from '@ionic/angular/standalone';
 import { Observable } from 'rxjs';
 @Component({
   selector: 'app-incident-list',
   templateUrl: './incident-list.component.html',
   styleUrls: ['./incident-list.component.scss'],
   standalone: true,
-  imports: [ IonInput,IonBadge, IonSearchbar, IonList, IonLabel, IonItem, IonFabButton, IonFab, IonButton, IonSpinner, IonRefresherContent, IonRefresher, IonContent, IonIcon, CommonModule, NavHeaderComponent, FormsModule]
+  imports: [ IonInput, IonSearchbar, IonList, IonLabel, IonItem, IonFabButton, IonFab, IonButton, IonSpinner, IonRefresherContent, IonRefresher, IonContent, IonIcon, CommonModule, NavHeaderComponent, FormsModule]
 })
 export class IncidentListComponent implements OnInit, OnDestroy {
   incidents: any[] = [];
