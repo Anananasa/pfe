@@ -96,3 +96,36 @@ ion-item {
   color: var(--ion-color-medium);
   margin-top: 20px;
 }
+
+.files-container {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.file-item {
+  --background: rgba(var(--ion-color-light-rgb), 0.5);
+  border-radius: 8px;
+  margin: 4px 0;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  --min-height: 40px;
+}
+
+.file-icon {
+  font-size: 24px;
+  color: var(--ion-color-primary);
+}
+
+.file-name {
+  font-size: 0.9em;
+  color: var(--ion-color-dark);
+  margin: 0 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+ion-button {
+  --padding-start: 4px;
+  --padding-end: 4px;
+}

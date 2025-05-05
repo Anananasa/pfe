@@ -85,7 +85,7 @@ export class ChatViewComponent implements OnInit {
     this.messagesSub = this.chatService.listenForMessages(this.groupId)
       .subscribe(messages => {
         this.messages = messages;
-        console.log('Messages updated:', this.messages);
+        console.log('Messages avec fichiers:', messages.filter(m => m.files && m.files.length > 0));
       });
   }
   
@@ -131,33 +131,33 @@ export class ChatViewComponent implements OnInit {
       const senderId = this.authService.getCurrentUserId() || 'null';
       const messageContent = this.newMessage;
       
-      this.chatService.sendMessage(this.groupId, senderId, messageContent)
+      this.chatService.sendMessage(this.groupId, senderId, messageContent, this.selectedFiles)
         .then(async () => {
           this.newMessage = '';
           this.loadMessages();
           const groupDetails = await this.GroupService.getGroupDetails(this.groupId);
           const messages: any = {
-            GroupId: groupDetails['apiId'], // GUID
-            UserId: senderId,               // GUID
-            FullName: 'Unknown', // optional fallback
-            Photo:  '',
-            UrlImg: '',      // use same as Photo if you don't have a different one
+            GroupId: groupDetails['apiId'],
+            UserId: senderId,
+            FullName: 'Unknown',
+            Photo: '',
+            UrlImg: '',
             Msg: messageContent,
             AttachedFiles: JSON.stringify(this.selectedFiles),
             Files: this.selectedFiles.map(file => ({
               Name: file.name,
               Type: file.type,
-              Data: file.data.length // Adjust if you want to send actual data
+              Data: file.data
             })),
             SentDate: new Date(),
             SeenBy: '',
-            ConnectionId: '',               // optional, set if you use SignalR connection tracking
+            ConnectionId: '',
             DeleteBy: '',
-            Type: 0,                        // assuming 0 = normal text message
+            Type: 0,
             IsDeleted: false,
             DeletionDate: null,
             SeenByList: [],
-            SiteId: groupDetails['siteId'] || '00000000-0000-0000-0000-000000000000', // fallback GUID
+            SiteId: groupDetails['siteId'] || '00000000-0000-0000-0000-000000000000',
             CompanyId: groupDetails['companyId'] || '00000000-0000-0000-0000-000000000000',
             IsShared: false,
             SharedWith: '',
@@ -168,14 +168,14 @@ export class ChatViewComponent implements OnInit {
             UpdatedDate: new Date(),
             UpdatedBy: senderId,
             CrudFrom: 0,
-            Id: crypto.randomUUID(), // or any valid GUID generator
+            Id: crypto.randomUUID(),
             CurrentUserId: senderId,
-            CurrentEmployeeId: senderId, // fallback if needed
+            CurrentEmployeeId: senderId,
             IsSystem: false,
             CRUD: 0
           };
           
-          this.selectedFiles = []; // Réinitialiser les fichiers après l'envoi
+          this.selectedFiles = [];
           try {
             console.log(messages);
             await this.GroupService.sendMessageToApi(messages);
@@ -209,7 +209,9 @@ export class ChatViewComponent implements OnInit {
     this.router.navigate(['/group-settings', this.groupId]);
   }
     
-  
+  getFullPath(filePath: string): string {
+    return filePath?.split('|')[0]?.replace('~', 'https://timserver.northeurope.cloudapp.azure.com/QalitasDemo') || '';
+  }
 
   async leaveGroup() {
     this.isPopoverOpen = false;
@@ -251,6 +253,31 @@ export class ChatViewComponent implements OnInit {
 
   getSenderName(senderId: string): string {
     return this.participantsNames.find(p => p.userId === senderId)?.fullName || 'Utilisateur';
+  }
+
+  getFileIcon(fileName: string): string {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    switch (extension) {
+      case 'pdf':
+        return 'document-text-outline';
+      case 'doc':
+      case 'docx':
+        return 'document-text-outline';
+      case 'xls':
+      case 'xlsx':
+        return 'document-text-outline';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+        return 'image-outline';
+      default:
+        return 'document-outline';
+    }
+  }
+
+  openFile(file: ChatFileDto) {
+    window.open(file.data, '_blank');
   }
   
 }

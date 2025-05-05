@@ -20,13 +20,18 @@
   
       <ion-label class="ion-text-wrap">
         <h3 *ngIf="message.senderId !== currentUserId">{{ getSenderName(message.senderId) }}</h3>
+        <div *ngIf="message.text!=''">
         <p class="message-content">{{ message.text }}</p>
-        <div *ngIf="message.files && message.files.length > 0">
-          <ion-item *ngFor="let file of message.files" lines="none">
-            <ion-icon name="document" slot="start"></ion-icon>
-            <ion-label>{{ file.name }}</ion-label>
-            <ion-button fill="clear" (click)="downloadFile(file)">
-              <ion-icon name="download"></ion-icon>
+      </div>
+        <div *ngIf="message.files && message.files.length > 0" class="files-container">
+          <ion-item *ngFor="let file of message.files" lines="none" class="file-item">
+            <ion-icon [name]="getFileIcon(file.name)" slot="start" class="file-icon"></ion-icon>
+            <ion-label class="file-name">{{ file.name }}</ion-label>
+            <ion-button fill="clear" size="small" (click)="downloadFile(file)">
+              <ion-icon name="download-outline"></ion-icon>
+            </ion-button>
+            <ion-button fill="clear" size="small" (click)="openFile(file)">
+              <ion-icon name="open-outline"></ion-icon>
             </ion-button>
           </ion-item>
         </div>

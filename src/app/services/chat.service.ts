@@ -37,12 +37,13 @@ export class ChatService {
   }
 
   // Send a new message to a group
-  async sendMessage(groupId: string, senderId: string, text: string) {
+  async sendMessage(groupId: string, senderId: string, text: string, files: ChatFileDto[] = []) {
     const newMessage = {
       groupId: groupId,
       senderId: senderId,
       text: text,
-      sentAt: Timestamp.fromDate(new Date())  // Use Firestore Timestamp
+      sentAt: Timestamp.fromDate(new Date()),
+      files: files
     };
 
     try {
@@ -59,21 +60,23 @@ export class ChatService {
   async getMessages(groupId: string) {
     const q = query(this.messagesRef, where('groupId', '==', groupId), orderBy('sentAt', 'asc'));
     const querySnapshot = await getDocs(q);
-const messages = querySnapshot.docs.map(doc => {
-  const data = doc.data() as {
-    groupId: string;
-    senderId: string;
-    text: string;
-    sentAt: Timestamp;
-  };
-  return {
-    id: doc.id,
-    groupId: data.groupId,
-    senderId: data.senderId,
-    text: data.text,
-    sentAt: data.sentAt.toDate() ,// Convert Firestore Timestamp to Date
-  };
-});
+    const messages = querySnapshot.docs.map(doc => {
+      const data = doc.data() as {
+        groupId: string;
+        senderId: string;
+        text: string;
+        sentAt: Timestamp;
+        files?: ChatFileDto[];
+      };
+      return {
+        id: doc.id,
+        groupId: data.groupId,
+        senderId: data.senderId,
+        text: data.text,
+        sentAt: data.sentAt.toDate(),
+        files: data.files || []
+      };
+    });
     return messages;
   }
 
@@ -98,6 +101,7 @@ const messages = querySnapshot.docs.map(doc => {
             senderId: string;
             text: string;
             sentAt: Timestamp;
+            files?: ChatFileDto[];
           };
           return {
             id: doc.id,
@@ -105,6 +109,7 @@ const messages = querySnapshot.docs.map(doc => {
             senderId: data.senderId,
             text: data.text,
             sentAt: data.sentAt.toDate(),
+            files: data.files || []
           };
         });
 
