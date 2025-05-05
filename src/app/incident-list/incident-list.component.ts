@@ -103,18 +103,7 @@ export class IncidentListComponent implements OnInit, OnDestroy {
         console.log('Received incidents:', data);
         this.incidents = data || [];
         this.filteredIncidents = [...this.incidents];
-        this.incidents.forEach(incident => {
-          this.countviewExistingChats(incident.id).subscribe({
-            next: (count) => {
-              incident.groupCount = count;
-              incident.hasGroupChat = count > 0;
-            },
-            error: () => {
-              incident.groupCount = 0;
-              incident.hasGroupChat = false;
-            }
-          });
-        });
+        
       },
       error: (error) => {
         console.error('Error loading incidents:', error);
@@ -128,25 +117,7 @@ export class IncidentListComponent implements OnInit, OnDestroy {
     });
   }
 
-  countviewExistingChats(incidentId: number) {
-    return new Observable<number>(observer => {
-      this.http.get(`${this.apiUrl}/filter?filter=${encodeURIComponent(JSON.stringify({ 
-        sourceId: incidentId
-      }))}`, { 
-        headers: this.getHeaders() 
-      }).subscribe({
-        next: (groups: any) => {
-          observer.next(groups ? groups.length : 0);
-          observer.complete();
-        },
-        error: (error) => {
-          console.error('Erreur lors du comptage des groupes:', error);
-          observer.next(0);
-          observer.complete();
-        }
-      });
-    });
-  }
+  
 
   filterIncidents() {
     if (!this.searchTerm.trim()) {

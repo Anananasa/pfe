@@ -114,10 +114,7 @@ export class GroupCreationComponent implements OnInit {
         }
       }));
   
-    if (buttons.length === 0) {
-      await this.showToast('Tous les utilisateurs sont déjà ajoutés');
-      return;
-    }
+   
   
     const actionSheet = await this.actionSheetController.create({
       header: 'Sélectionner un participant',

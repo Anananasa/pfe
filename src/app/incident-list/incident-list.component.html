@@ -152,12 +152,10 @@
         <div class="incident-actions">
           <ion-button (click)="showMessageOptions(incident)" fill="clear" class="icon-button-with-badge">
             <ion-icon
-              [name]="incident.hasGroupChat ? 'chatbubbles' : 'chatbubbles-outline'"
-              color="primary">
+              name='chatbubbles' 
+              >
             </ion-icon>
-            <ion-badge *ngIf="incident.groupCount > 0" class="group-badge">
-              {{ incident.groupCount }}
-            </ion-badge>
+            
           </ion-button>
           <ion-icon name="warning-outline" (click)="showRisquePopup(incident)" style="margin-left: 30px"></ion-icon>
           <ion-icon

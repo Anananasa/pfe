@@ -250,8 +250,6 @@ export class ChatViewComponent implements OnInit {
   }
 
   getSenderName(senderId: string): string {
-    console.log('senderId', senderId);
-    console.log('participantsNames', this.participantsNames);
     return this.participantsNames.find(p => p.userId === senderId)?.fullName || 'Utilisateur';
   }
   

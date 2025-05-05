@@ -11,6 +11,7 @@ import { QuillModule } from 'ngx-quill';
 import { IncidentMediaComponent } from '../incident-media/incident-media.component'
 import { Keyboard, KeyboardResize } from '@capacitor/keyboard';
 import { Capacitor } from '@capacitor/core';
+import { IncidentStateService } from '../services/incident-state.service';
 
 interface IncidentTeamDto {
   employeeId: string;
@@ -63,7 +64,8 @@ export class AddIncidentComponent implements OnInit {
     private apiService: ApiService,
     private router: Router,
     private authService: AuthService,
-    private actionSheetController: ActionSheetController
+    private actionSheetController: ActionSheetController,
+    private incidentState: IncidentStateService
   ) {
     this.incidentForm = this.fb.group({
       designation: ['', Validators.required],
@@ -80,6 +82,8 @@ export class AddIncidentComponent implements OnInit {
   }
   
   ngOnInit() {
+    this.incidentState.triggerRefresh();
+
     this.loadEmployees();
     if (Capacitor.isNativePlatform()) {
       Keyboard.setAccessoryBarVisible({ isVisible: true });
@@ -194,7 +198,7 @@ export class AddIncidentComponent implements OnInit {
         incidentTeams: incidentTeams,
         isSystem: false,
         crudFrom: 1,
-        crud: 1, // CHANGES DEPENDING ON THE METHOD 1: CREATES, 2: UPDATES, 3: DELETES
+        crud: 1,
         legacyId: '',
         typeLegacy: 0,
         isEnabled: true,
@@ -209,6 +213,16 @@ export class AddIncidentComponent implements OnInit {
           if (this.selectedFiles && this.selectedFiles.length > 0 && response.id) {
             this.uploadFiles(response.id);
           } else {
+            this.incidentForm.reset({
+              date: new Date().toISOString().split('T')[0],
+              dateDeclaration: new Date().toISOString().split('T')[0],
+              status: 'En cours',
+              duration: 0
+            });
+            this.participants = [];
+            this.selectedFiles = [];
+            this.incidentState.triggerRefresh();
+            this.isSubmitting = false;
             this.router.navigate(['/incident-list']);
           }
         },
@@ -231,12 +245,20 @@ export class AddIncidentComponent implements OnInit {
     Promise.all(uploadPromises)
       .then(() => {
         console.log('Tous les fichiers ont été uploadés');
+        this.incidentForm.reset({
+          date: new Date().toISOString().split('T')[0],
+          dateDeclaration: new Date().toISOString().split('T')[0],
+          status: 'En cours',
+          duration: 0
+        });
+        this.participants = [];
+        this.selectedFiles = [];
+        this.incidentState.triggerRefresh();
+        this.isSubmitting = false;
         this.router.navigate(['/incident-list']);
       })
       .catch(error => {
         console.error('Erreur lors de l\'upload des fichiers:', error);
-      })
-      .finally(() => {
         this.isSubmitting = false;
       });
   }

@@ -65,13 +65,16 @@ export class GroupService {
       Participants: userIds
     };
 
-    console.log(apiNewGroup)
+    console.log('Creating API group:', apiNewGroup);
 
     try {
       const apiResponse = await this.http.post(this.apiUrl, apiNewGroup, { headers: this.headers }).toPromise();
-      const apiId = (apiResponse as any)?.id;
-
+      console.log('API Response:', apiResponse);
+      
+      // Générer un ID local si l'API n'en fournit pas
+      const apiId = (apiResponse as any)?.id || this.generateGUID();
       const firebaseGroupId = this.generateGUID();
+      
       const newGroup = {
         name: groupName,
         incidentId: incidentId,
@@ -80,6 +83,8 @@ export class GroupService {
         createdAt: new Date(),
         apiId: apiId
       };
+
+      console.log('Creating Firebase group:', newGroup);
 
       const groupDocRef = doc(this.groupsRef, firebaseGroupId);
       await setDoc(groupDocRef, newGroup);
