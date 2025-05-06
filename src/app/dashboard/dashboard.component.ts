@@ -735,16 +735,32 @@ export class DashboardComponent implements OnInit {
       declarationDate: undefined,
       year: undefined
     };
-    this.filteredIncidents = [...this.allIncidents];
+    this.incidentsThatHaveFiles = this.incidents.filter(incident => incident.incidentFiles && incident.incidentFiles.length > 0);
+    this.filteredIncidents = [...this.incidentsThatHaveFiles];
   }
 
+  
   applyFilter() {
-    this.showFilter = false;
-    this.filterGallery();
+    // Si tous les filtres sont vides, on réinitialise à la liste des incidents avec fichiers
+    if (!this.filter.date && !this.filter.declarationDate && !this.filter.year) {
+      this.incidentsThatHaveFiles = this.incidents.filter(incident => incident.incidentFiles && incident.incidentFiles.length > 0);
+      return;
+    }
+
+    this.filteredIncidents = this.incidentsThatHaveFiles.filter((incident) => {
+      const dateMatch = !this.filter.date || incident.incidentDate?.startsWith(this.filter.date);
+      const declMatch = !this.filter.declarationDate || incident.declarationDate?.startsWith(this.filter.declarationDate);
+      const yearMatch = !this.filter.year || (
+        incident.incidentDate &&
+        new Date(incident.incidentDate).getFullYear() === +this.filter.year
+      );
+      return dateMatch && declMatch && yearMatch;
+    });
+    this.incidentsThatHaveFiles = this.filteredIncidents;
   }
 
   filterGallery() {
-    this.filteredIncidents = this.allIncidents.filter(incident => {
+    this.filteredIncidents = this.incidentsThatHaveFiles.filter(incident => {
       // Filtre par texte de recherche
       const matchesSearch = !this.searchTerm || 
         incident.designation.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
@@ -752,17 +768,15 @@ export class DashboardComponent implements OnInit {
       
       // Filtre par date
       const matchesDate = !this.filter.date || 
-        incident.date.toISOString().split('T')[0] === this.filter.date;
+        incident.incidentDate?.startsWith(this.filter.date);
       
       // Filtre par année
       const matchesYear = !this.filter.year || 
-        incident.date.getFullYear() === this.filter.year;
-      
-      // Filtre par statut
-      
+        (incident.incidentDate && new Date(incident.incidentDate).getFullYear() === +this.filter.year);
 
-      return matchesSearch && matchesDate && matchesYear ;
+      return matchesSearch && matchesDate && matchesYear;
     });
+    this.incidentsThatHaveFiles = this.filteredIncidents;
   }
   isTeamPerformanceOpen: boolean = false;
 
