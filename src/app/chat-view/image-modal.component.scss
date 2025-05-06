@@ -1,0 +1,12 @@
+ion-content {
+  --background: rgba(0, 0, 0, 0.9);
+}
+
+img {
+  box-shadow: 0 0 20px #000;
+  transition: transform 0.3s ease;
+}
+
+img:hover {
+  transform: scale(1.02);
+}

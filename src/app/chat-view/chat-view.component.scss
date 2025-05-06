@@ -10,6 +10,31 @@ ion-item.user-message {
 ion-item.user-message ion-label {
   text-align: right;
 }
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.image-modal img {
+  max-width: 90%;
+  max-height: 90%;
+  box-shadow: 0 0 20px #000;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.image-modal:hover img {
+  transform: scale(1.02);
+  cursor: zoom-out;
+}
 
 ion-item.user-message .message-content {
   background-color: #e7f0e0; /* light green for user's messages */
@@ -103,7 +128,7 @@ ion-item {
 }
 
 .file-item {
-  --background: rgba(var(--ion-color-light-rgb), 0.5);
+  background: rgba(var(--ion-color-light-rgb), 0.5);
   border-radius: 8px;
   margin: 4px 0;
   --padding-start: 8px;
@@ -113,6 +138,7 @@ ion-item {
 
 .file-icon {
   font-size: 24px;
+  
   color: var(--ion-color-primary);
 }
 

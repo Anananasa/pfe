@@ -8,8 +8,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { ViewChild } from '@angular/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 //import { IonPopover, IonHeader, IonToolbar, PopoverController, IonButtons, IonBackButton, IonTitle, IonButton, IonIcon, IonContent, IonList, IonItem, IonAvatar, IonLabel, IonFooter } from "@ionic/angular/standalone";
-import { IonicModule } from '@ionic/angular';
+import { IonicModule,ModalController } from '@ionic/angular';
 import { PopoverController, IonPopover } from '@ionic/angular';
 interface ChatFileDto {
   name: string;
@@ -49,6 +50,7 @@ export class ChatViewComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private modalController: ModalController,
     private authService: AuthService,
     private GroupService: GroupService,
     private chatService: ChatService,
@@ -208,11 +210,27 @@ export class ChatViewComponent implements OnInit {
     this.closeMenu();
     this.router.navigate(['/group-settings', this.groupId]);
   }
-    
+  isImageModalOpen = false;
+  selectedImagePath = '';
+  openImageFullscreen(filePath: string) {
+    this.selectedImagePath = this.getFullPath(filePath);
+    this.isImageModalOpen = true;
+  }
+
+  closeImageModal() {
+    this.isImageModalOpen = false;
+    this.selectedImagePath = '';
+  
+  }
+  isVideo(fileName: string): boolean {
+    return /\.(mp4|webm|ogg|mov|avi)$/i.test(fileName);
+  }
   getFullPath(filePath: string): string {
     return filePath?.split('|')[0]?.replace('~', 'https://timserver.northeurope.cloudapp.azure.com/QalitasDemo') || '';
   }
-
+  isImage(fileName: string): boolean {
+    return /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(fileName);
+  }
   async leaveGroup() {
     this.isPopoverOpen = false;
     if (!this.currentUserId) return;

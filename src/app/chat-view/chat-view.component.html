@@ -25,13 +25,23 @@
       </div>
         <div *ngIf="message.files && message.files.length > 0" class="files-container">
           <ion-item *ngFor="let file of message.files" lines="none" class="file-item">
-            <ion-icon [name]="getFileIcon(file.name)" slot="start" class="file-icon"></ion-icon>
-            <ion-label class="file-name">{{ file.name }}</ion-label>
+            <ng-container *ngIf="isImage(file.name); else notImage">
+              <ion-label class="file-name"></ion-label>
+              <ion-button fill="clear" size="small" (click)="downloadFile(file)">
+                <ion-icon name="download-outline"></ion-icon>
+              </ion-button>
+              <img [src]="getFullPath(file.data)"  style="max-width: 400px; max-height: 400px; " 
+              (click)="openImageFullscreen(getFullPath(file.data))"/>
+            </ng-container>
+            <ng-template #notImage>
+              <ion-icon [name]="getFileIcon(file.name)" slot="end" class="file-icon"></ion-icon>
+              <ion-label class="file-name">{{ file.name }}</ion-label>
             <ion-button fill="clear" size="small" (click)="downloadFile(file)">
               <ion-icon name="download-outline"></ion-icon>
             </ion-button>
-            <ion-button fill="clear" size="small" (click)="openFile(file)">
-              <ion-icon name="open-outline"></ion-icon>
+            </ng-template>
+            
+            <ion-button fill="clear" size="small" (click)="getFullPath(file.data)">
             </ion-button>
           </ion-item>
         </div>
@@ -49,8 +59,7 @@
         <ion-button fill="clear" (click)="openFileInput()">
           <ion-icon name="attach"></ion-icon>
         </ion-button>
-        <input type="file" #fileInput style="display: none" (change)="handleFileInput($event)">
-        <ion-button fill="clear" (click)="sendMessage()">
+        <input type="file" #fileInput style="display: none" (change)="handleFileInput($event)" accept="image/*,.pdf,.doc,.docx" multiple>        <ion-button fill="clear" (click)="sendMessage()">
           <ion-icon name="send"></ion-icon>
         </ion-button>
       </div>
