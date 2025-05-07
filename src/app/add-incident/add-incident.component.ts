@@ -1,4 +1,4 @@
-import { Component, NO_ERRORS_SCHEMA, OnInit } from '@angular/core';
+import { Component, NO_ERRORS_SCHEMA, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, ActionSheetController } from '@ionic/angular';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
@@ -65,7 +65,8 @@ export class AddIncidentComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private actionSheetController: ActionSheetController,
-    private incidentState: IncidentStateService
+    private incidentState: IncidentStateService,
+    private cdr: ChangeDetectorRef
   ) {
     this.incidentForm = this.fb.group({
       designation: ['', Validators.required],
@@ -109,12 +110,10 @@ export class AddIncidentComponent implements OnInit {
     const buttons = this.availableEmployees
       .filter(emp => !this.participants.some(p => p.id === emp.id))
       .map(emp => {
-        console.log('Structure détaillée de l\'employé pour le bouton:', JSON.stringify(emp, null, 2));
         return {
           text: emp.fullName || `${emp.firstName} ${emp.lastName}`,
           handler: () => {
-            console.log('Ajout du participant:', emp);
-            this.participants.push({
+            const newParticipant = {
               ...emp,
               id: emp.id,
               fullName: emp.fullName || `${emp.firstName} ${emp.lastName}`,
@@ -125,12 +124,13 @@ export class AddIncidentComponent implements OnInit {
               isAdminControl: new FormControl(false),
               isMemberControl: new FormControl(false),
               isInformedControl: new FormControl(false)
-            });
+            };
+            
+            this.participants = [...this.participants, newParticipant];
+            this.cdr.detectChanges();
           }
         };
       });
-
-    console.log('Boutons créés:', buttons);
 
     if (buttons.length === 0) {
       return;
@@ -150,20 +150,21 @@ export class AddIncidentComponent implements OnInit {
     await actionSheet.present();
   }
 
-  toggleRole(participant: GroupParticipantForm) {
-    const currentUserId = localStorage.getItem('CurrentEmployeeId');
-    if (participant.id === currentUserId) {
-      return;
-    }
-    participant.isAdmin = !participant.isAdmin;
-  }
-
   removeParticipant(participant: GroupParticipantForm) {
     const currentUserId = localStorage.getItem('CurrentEmployeeId');
     if (participant.id === currentUserId) {
       return;
     }
     this.participants = this.participants.filter(p => p.id !== participant.id);
+    this.cdr.detectChanges();
+  }
+
+  toggleRole(participant: GroupParticipantForm) {
+    const currentUserId = localStorage.getItem('CurrentEmployeeId');
+    if (participant.id === currentUserId) {
+      return;
+    }
+    participant.isAdmin = !participant.isAdmin;
   }
 
   async onSubmit() {
@@ -274,25 +275,37 @@ export class AddIncidentComponent implements OnInit {
     }
   }
 
-  // Mettre à jour les rôles d'un participant
   updateParticipantRoles(participant: GroupParticipantForm, role: string, value: boolean) {
     const index = this.participants.findIndex(p => p.id === participant.id);
     if (index !== -1) {
+      const updatedParticipants = [...this.participants];
       switch(role) {
         case 'supervisor':
-          this.participants[index].isAdmin = value;
-          this.participants[index].isAdminControl.setValue(value);
+          updatedParticipants[index] = {
+            ...updatedParticipants[index],
+            isAdmin: value,
+            isAdminControl: new FormControl(value)
+          };
           break;
         case 'member':
-          this.participants[index].isMember = value;
-          this.participants[index].isMemberControl.setValue(value);
+          updatedParticipants[index] = {
+            ...updatedParticipants[index],
+            isMember: value,
+            isMemberControl: new FormControl(value)
+          };
           break;
         case 'informed':
-          this.participants[index].isInformed = value;
-          this.participants[index].isInformedControl.setValue(value);
+          updatedParticipants[index] = {
+            ...updatedParticipants[index],
+            isInformed: value,
+            isInformedControl: new FormControl(value)
+          };
           break;
+      }
+      this.participants = updatedParticipants;
+      this.cdr.detectChanges();
     }
-  }}
+  }
 
   private generateIncidentCode(): string {
     const date = new Date();

@@ -27,9 +27,9 @@
         <p>{{ participant.isAdmin ? 'Administrateur' : 'Membre' }}</p>
       </ion-label>
       <ion-buttons slot="end">
-       <!-- <ion-button (click)="toggleRole(participant)">
+        <ion-button (click)="toggleRole(participant)">
           <ion-icon [name]="participant.isAdmin ? 'shield' : 'person'"></ion-icon>
-        </ion-button>-->
+        </ion-button>
         <ion-button (click)="removeParticipant(participant)" color="danger">
           <ion-icon name="trash"></ion-icon>
         </ion-button>

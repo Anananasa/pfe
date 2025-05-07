@@ -34,15 +34,24 @@
               (click)="openImageFullscreen(getFullPath(file.data))"/>
             </ng-container>
             <ng-template #notImage>
-              <ion-icon [name]="getFileIcon(file.name)" slot="end" class="file-icon"></ion-icon>
-              <ion-label class="file-name">{{ file.name }}</ion-label>
-            <ion-button fill="clear" size="small" (click)="downloadFile(file)">
-              <ion-icon name="download-outline"></ion-icon>
-            </ion-button>
+              <ng-container *ngIf="isVideo(file.name); else notVideo">
+                <ion-label class="file-name">{{ file.name }}</ion-label>
+                <ion-button fill="clear" size="small" (click)="downloadFile(file)">
+                  <ion-icon name="download-outline"></ion-icon>
+                </ion-button>
+                <video controls style="max-width: 400px; max-height: 400px;">
+                  <source [src]="getFullPath(file.data)" [type]="file.type">
+                  Votre navigateur ne supporte pas la lecture de vidéos.
+                </video>
+              </ng-container>
+              <ng-template #notVideo>
+                <ion-icon [name]="getFileIcon(file.name)" slot="end" class="file-icon"></ion-icon>
+                <ion-label class="file-name">{{ file.name }}</ion-label>
+                <ion-button fill="clear" size="small" (click)="downloadFile(file)">
+                  <ion-icon name="download-outline"></ion-icon>
+                </ion-button>
+              </ng-template>
             </ng-template>
-            
-            <ion-button fill="clear" size="small" (click)="getFullPath(file.data)">
-            </ion-button>
           </ion-item>
         </div>
         <p class="timestamp">{{ message.sentAt | date:'short' }}</p>
@@ -58,11 +67,12 @@
         <ion-input [(ngModel)]="newMessage" placeholder="Écrivez votre message..." (keyup.enter)="sendMessage()"></ion-input>
         <ion-button fill="clear" (click)="openFileInput()">
           <ion-icon name="attach"></ion-icon>
+          <span class="button-text">Fichier</span>
         </ion-button>
-        <input type="file" #fileInput style="display: none" (change)="handleFileInput($event)" accept="image/*,.pdf,.doc,.docx" multiple>        <ion-button fill="clear" (click)="sendMessage()">
+        <ion-button fill="clear" (click)="sendMessage()">
           <ion-icon name="send"></ion-icon>
         </ion-button>
-      </div>
+      </div>    
     </ion-item>
     <ion-item *ngIf="selectedFiles.length > 0" lines="none">
       <ion-label>

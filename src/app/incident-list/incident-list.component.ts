@@ -75,6 +75,7 @@ export class IncidentListComponent implements OnInit, OnDestroy {
     if (this.refreshSubscription) {
       this.refreshSubscription.unsubscribe();
     }
+    this.incidentState.stopPolling();
   }
   toggleFilter() {
     this.showFilter = !this.showFilter;

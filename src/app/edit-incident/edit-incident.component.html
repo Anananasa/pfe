@@ -17,11 +17,10 @@
       <input class="input-label" formControlName="dateDeclaration" type="date"/>
     </ion-item>
   </div>
-<!--
-    <ion-item-divider>
+    <ion-item-divider *ngIf="false">
       <ion-label class="label">Équipes</ion-label>
     </ion-item-divider>
-  <div class="scrollable-grid">
+  <div class="scrollable-grid" *ngIf="false">
     <ion-grid class="sc rollable-content">  
       <ion-row class="header-row">
         <ion-col size="3">Nom et prénom</ion-col>
@@ -66,7 +65,7 @@
       <ion-icon name="add-outline" slot="start"></ion-icon>
       <ion-label>Ajouter un membre</ion-label>
     </ion-item>
-  </div>-->
+  </div>
     <div class="description-section">
       <div class="description-label">Description</div>
       <quill-editor

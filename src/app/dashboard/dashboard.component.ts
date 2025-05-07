@@ -33,7 +33,7 @@ import { FormsModule } from '@angular/forms';
 interface DashboardIncident {
   designation: string;
   date: Date;
-  status: 'En cours' | 'Rejeté(es)' | 'Validé' | 'Programmé(e)';
+  status: 'En cours' | 'Validé' | 'Rejeté(es)' | 'Programmé(e)';
   duration: number;
   team: string;
   cause?: string;
@@ -245,8 +245,8 @@ export class DashboardComponent implements OnInit {
     switch (state) {
       case 0: return 'Programmé(e)';
       case 1: return 'En cours';
-      case 2: return 'Validé';
-      case 3: return 'Rejeté(es)';
+      case 3: return 'Validé';
+      case 2: return 'Rejeté(es)';
       default: return 'En cours';
     }
 

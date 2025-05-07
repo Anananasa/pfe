@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GroupService } from '../services/group.service';
@@ -8,10 +8,17 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { ViewChild } from '@angular/core';
-import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { ActionSheetController, ToastController } from '@ionic/angular';
 //import { IonPopover, IonHeader, IonToolbar, PopoverController, IonButtons, IonBackButton, IonTitle, IonButton, IonIcon, IonContent, IonList, IonItem, IonAvatar, IonLabel, IonFooter } from "@ionic/angular/standalone";
 import { IonicModule,ModalController } from '@ionic/angular';
 import { PopoverController, IonPopover } from '@ionic/angular';
+import { Capacitor } from '@capacitor/core';
+import { Dialog } from '@capacitor/dialog';
+import { FileChooser } from '@ionic-native/file-chooser/ngx';
+import { isPlatform } from '@ionic/angular';
+
 interface ChatFileDto {
   name: string;
   data: string;
@@ -28,7 +35,8 @@ interface Participant {
   templateUrl: './chat-view.component.html',
   styleUrls: ['./chat-view.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [IonicModule, CommonModule, FormsModule],
+  providers: [FileChooser]
 })
 export class ChatViewComponent implements OnInit {
   @ViewChild('popover') popover?: IonPopover;
@@ -55,7 +63,10 @@ export class ChatViewComponent implements OnInit {
     private GroupService: GroupService,
     private chatService: ChatService,
     private popoverController: PopoverController,
-    private router: Router
+    private router: Router,
+    private actionSheetController: ActionSheetController,
+    private fileChooser: FileChooser,
+    private toastController: ToastController
   ) {
     // Get groupId from route params
     this.groupId = this.route.snapshot.params['groupId'];
@@ -101,30 +112,204 @@ export class ChatViewComponent implements OnInit {
     });
   }
 
-  openFileInput() {
-    this.fileInput.nativeElement.click();
+  async openFileInput() {
+    const actionSheet = await this.actionSheetController.create({
+      header: 'Sélectionner un fichier',
+      buttons: [
+        
+        {
+          text: 'Choisir une photo',
+          icon: 'image',
+          handler: () => {
+            this.pickImage();
+          }
+        },
+        
+        {
+          text: 'Choisir une vidéo',
+          icon: 'film',
+          handler: () => {
+            this.pickVideo();
+          }
+        },
+        {
+          text: 'Choisir un document',
+          icon: 'document',
+          handler: () => {
+            this.pickDocument();
+          }
+        },
+        {
+          text: 'Annuler',
+          icon: 'close',
+          role: 'cancel'
+        }
+      ]
+    });
+    await actionSheet.present();
   }
 
-  async handleFileInput(event: any) {
-    const files = event.target.files;
-    for (let file of files) {
-      const base64 = await this.convertFileToBase64(file);
-      this.selectedFiles.push({
-        name: file.name,
-        data: base64,
-        type: file.type
+  async takePicture() {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: true,
+        resultType: CameraResultType.Base64,
+        source: CameraSource.Camera
       });
+
+      if (image.base64String) {
+        this.selectedFiles.push({
+          name: 'photo.jpg',
+          data: `data:image/jpeg;base64,${image.base64String}`,
+          type: 'image/jpeg'
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la prise de photo:', error);
     }
-    // Réinitialiser l'input file
-    this.fileInput.nativeElement.value = '';
   }
 
-  private convertFileToBase64(file: File): Promise<string> {
+  async pickImage() {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        resultType: CameraResultType.Base64,
+        source: CameraSource.Photos
+      });
+
+      if (image.base64String) {
+        this.selectedFiles.push({
+          name: 'image.jpg',
+          data: `data:image/jpeg;base64,${image.base64String}`,
+          type: 'image/jpeg'
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la sélection de l\'image:', error);
+    }
+  }
+
+  async takeVideo() {
+    try {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'video/*';
+      
+      input.onchange = async (event: any) => {
+        const file = event.target.files[0];
+        if (file) {
+          try {
+            const base64Data = await this.fileToBase64(file);
+            this.selectedFiles.push({
+              name: file.name,
+              data: base64Data,
+              type: file.type
+            });
+          } catch (error) {
+            console.error('Erreur lors de la conversion du fichier:', error);
+            this.showError('Erreur lors de la conversion du fichier');
+          }
+        }
+      };
+      
+      input.click();
+    } catch (error) {
+      console.error('Erreur lors de la sélection de la vidéo:', error);
+      this.showError('Erreur lors de la sélection de la vidéo');
+    }
+  }
+
+  async pickVideo() {
+    try {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'video/*';
+      
+      input.onchange = async (event: any) => {
+        const file = event.target.files[0];
+        if (file) {
+          try {
+            const base64Data = await this.fileToBase64(file);
+            this.selectedFiles.push({
+              name: file.name,
+              data: base64Data,
+              type: file.type
+            });
+          } catch (error) {
+            console.error('Erreur lors de la conversion du fichier:', error);
+            this.showError('Erreur lors de la conversion du fichier');
+          }
+        }
+      };
+      
+      input.click();
+    } catch (error) {
+      console.error('Erreur lors de la sélection de la vidéo:', error);
+      this.showError('Erreur lors de la sélection de la vidéo');
+    }
+  }
+
+  async pickDocument() {
+    try {
+      if (Capacitor.isNativePlatform()) {
+        // Sur mobile, on utilise FileChooser
+        const fileUri = await this.fileChooser.open();
+        if (fileUri) {
+          try {
+            const fileData = await Filesystem.readFile({
+              path: fileUri,
+              directory: Directory.Documents
+            });
+
+            this.selectedFiles.push({
+              name: fileUri.split('/').pop() || 'document',
+              data: `data:application/octet-stream;base64,${fileData.data}`,
+              type: 'application/octet-stream'
+            });
+          } catch (error) {
+            console.error('Erreur lors de la lecture du fichier:', error);
+            this.showError('Erreur lors de la lecture du fichier');
+          }
+        }
+      } else {
+        // Sur web, on utilise l'input standard
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.pdf,.doc,.docx,.xls,.xlsx,.txt';
+        input.multiple = true;
+        
+        input.onchange = async (event: any) => {
+          const files = event.target.files;
+          for (let file of files) {
+            try {
+              const base64Data = await this.fileToBase64(file);
+              this.selectedFiles.push({
+                name: file.name,
+                data: base64Data,
+                type: file.type
+              });
+            } catch (error) {
+              console.error('Erreur lors de la conversion du fichier:', error);
+              this.showError('Erreur lors de la conversion du fichier');
+            }
+          }
+        };
+        
+        input.click();
+      }
+    } catch (error) {
+      console.error('Erreur lors de la sélection du document:', error);
+      this.showError('Erreur lors de la sélection du document');
+    }
+  }
+
+  private fileToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result as string);
-      reader.onerror = error => reject(error);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
     });
   }
 
@@ -262,11 +447,90 @@ export class ChatViewComponent implements OnInit {
     this.selectedFiles = this.selectedFiles.filter(f => f !== file);
   }
 
-  downloadFile(file: ChatFileDto) {
-    const link = document.createElement('a');
-    link.href = file.data;
-    link.download = file.name;
-    link.click();
+  async downloadFile(file: ChatFileDto) {
+    try {
+      if (Capacitor.isNativePlatform()) {
+        // Sur mobile, on télécharge le fichier dans le stockage local
+        const loadingToast = await this.toastController.create({
+          message: 'Téléchargement en cours...',
+          duration: 0,
+          position: 'bottom'
+        });
+        await loadingToast.present();
+
+        const response = await fetch(file.data);
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+        const blob = await response.blob();
+        const base64Data = await this.blobToBase64(blob);
+        
+        // Créer un nom de fichier unique avec timestamp
+        const timestamp = new Date().getTime();
+        const fileName = `${timestamp}_${file.name}`;
+        
+        const result = await Filesystem.writeFile({
+          path: fileName,
+          data: base64Data,
+          directory: Directory.Documents,
+          recursive: true
+        });
+
+        await loadingToast.dismiss();
+        
+        const successToast = await this.toastController.create({
+          message: `Fichier téléchargé: ${file.name}`,
+          duration: 3000,
+          position: 'bottom',
+          buttons: [
+            {
+              text: 'OK',
+              role: 'cancel'
+            }
+          ]
+        });
+        await successToast.present();
+      } else {
+        // Sur web, on utilise l'approche standard avec un nom de fichier unique
+        const timestamp = new Date().getTime();
+        const fileName = `${timestamp}_${file.name}`;
+        const link = document.createElement('a');
+        link.href = file.data;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error) {
+      console.error('Erreur lors du téléchargement:', error);
+      const errorToast = await this.toastController.create({
+        message: `Erreur lors du téléchargement: ${error instanceof Error ? error.message : 'Erreur inconnue'}`,
+        duration: 3000,
+        position: 'bottom',
+        color: 'danger',
+        buttons: [
+          {
+            text: 'OK',
+            role: 'cancel'
+          }
+        ]
+      });
+      await errorToast.present();
+    }
+  }
+
+  private blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        // Supprimer le préfixe "data:*/*;base64," si présent
+        const base64 = base64String.split(',')[1] || base64String;
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   }
 
   getSenderName(senderId: string): string {
@@ -298,4 +562,8 @@ export class ChatViewComponent implements OnInit {
     window.open(file.data, '_blank');
   }
   
+  private showError(message: string) {
+    // Vous pouvez implémenter une méthode pour afficher les erreurs à l'utilisateur
+    console.error(message);
+  }
 }

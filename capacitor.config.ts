@@ -13,6 +13,14 @@ const config: CapacitorConfig = {
       resize: KeyboardResize.Body,
       style: KeyboardStyle.Dark,
       resizeOnFullScreen: true
+    },
+    Camera: {
+      androidScaleType: 'CENTER_CROP',
+      allowEditing: true,
+      resultType: 'uri'
+    },
+    Filesystem: {
+      directory: 'documents'
     }
   }
 };

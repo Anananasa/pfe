@@ -95,30 +95,35 @@ export class GroupCreationComponent implements OnInit {
 
   async addParticipant() {
     this.loadUsers();
-    console.log(this.participants);
   
     const buttons = this.availableusers
       .filter(user => !this.participants.some(p => p.fullName === user.fullName))
       .map(user => ({
         text: user.fullName,
         handler: () => {
-          this.participants.push({
-            userId: user.userId,  // lowercase
+          const newParticipant = {
+            userId: user.userId,
             fullName: user.fullName,
             userName: user.userName,
             serviceDesignation: user.serviceDesignation,
             photo: '',
             isAdmin: false
-          });
+          };
           
+          this.participants = [...this.participants, newParticipant];
+          this.cdr.detectChanges();
         }
       }));
   
-   
-  
     const actionSheet = await this.actionSheetController.create({
       header: 'Sélectionner un participant',
-      buttons: [...buttons]
+      buttons: [
+        ...buttons,
+        {
+          text: 'Annuler',
+          role: 'cancel'
+        }
+      ]
     });
   
     await actionSheet.present();
@@ -127,11 +132,21 @@ export class GroupCreationComponent implements OnInit {
   
 
   toggleRole(participant: GroupParticipant) {
-    participant.isAdmin = !participant.isAdmin;
+    const index = this.participants.findIndex(p => p.fullName === participant.fullName);
+    if (index !== -1) {
+      const updatedParticipants = [...this.participants];
+      updatedParticipants[index] = {
+        ...updatedParticipants[index],
+        isAdmin: !updatedParticipants[index].isAdmin
+      };
+      this.participants = updatedParticipants;
+      this.cdr.detectChanges();
+    }
   }
 
   removeParticipant(participant: GroupParticipant) {
     this.participants = this.participants.filter(p => p.fullName !== participant.fullName);
+    this.cdr.detectChanges();
   }
 
   getuserPhotoUrl(user: GroupParticipant): string {
