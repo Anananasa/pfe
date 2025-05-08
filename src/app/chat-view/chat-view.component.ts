@@ -11,8 +11,8 @@ import { ViewChild } from '@angular/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { ActionSheetController, ToastController } from '@ionic/angular';
-//import { IonPopover, IonHeader, IonToolbar, PopoverController, IonButtons, IonBackButton, IonTitle, IonButton, IonIcon, IonContent, IonList, IonItem, IonAvatar, IonLabel, IonFooter } from "@ionic/angular/standalone";
-import { IonicModule,ModalController } from '@ionic/angular';
+import { IonPopover, IonHeader, IonToolbar, PopoverController, IonButtons, IonBackButton, IonTitle, IonButton, IonIcon, IonContent, IonList, IonItem, IonAvatar, IonLabel, IonFooter } from "@ionic/angular/standalone";
+import { ModalController } from '@ionic/angular';
 import { PopoverController, IonPopover } from '@ionic/angular';
 import { Capacitor } from '@capacitor/core';
 import { Dialog } from '@capacitor/dialog';
@@ -35,7 +35,7 @@ interface Participant {
   templateUrl: './chat-view.component.html',
   styleUrls: ['./chat-view.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [IonPopover, IonHeader, IonToolbar, PopoverController, IonButtons, IonBackButton, IonTitle, IonButton, IonIcon, IonContent, IonList, IonItem, IonAvatar, IonLabel, IonFooter, CommonModule, FormsModule],
   providers: [FileChooser]
 })
 export class ChatViewComponent implements OnInit {
